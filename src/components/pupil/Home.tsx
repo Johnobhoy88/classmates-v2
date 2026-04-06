@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { GameShell } from '../shared/GameShell';
+import { useProgress } from '../../hooks/useProgress';
 
 const PLAYABLE_GAMES = new Set(['spelling', 'maths']);
 
@@ -41,9 +42,23 @@ const GAME_CATEGORIES = [
   },
 ];
 
+function getTimeGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'Good morning';
+  if (h < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export function PupilHome() {
   const { pupil, logoutPupil } = useAuth();
   const [activeGame, setActiveGame] = useState<string | null>(null);
+  const { stats, refresh } = useProgress(pupil?.id);
+  const [greeting] = useState(getTimeGreeting);
+
+  // Refresh stats when returning from a game
+  useEffect(() => {
+    if (!activeGame && pupil) refresh();
+  }, [activeGame, pupil, refresh]);
 
   if (!pupil) return null;
 
@@ -61,12 +76,12 @@ export function PupilHome() {
       {/* Header */}
       <header className="px-6 py-5 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full bg-emerald-400 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white font-bold text-2xl shadow-lg shadow-emerald-500/30">
             {pupil.display_name.charAt(0).toUpperCase()}
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">
-              Hi, {pupil.display_name}!
+              {greeting}, {pupil.display_name}!
             </h1>
             <p className="text-sm text-emerald-300/70">
               Ready to learn?
@@ -80,6 +95,24 @@ export function PupilHome() {
           Switch pupil
         </button>
       </header>
+
+      {/* Stats bar */}
+      <div className="px-6 pb-4">
+        <div className="flex gap-3">
+          <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/10 text-center">
+            <p className="text-2xl font-bold text-amber-300">{stats.totalStars}</p>
+            <p className="text-xs text-white/50 font-semibold">Stars</p>
+          </div>
+          <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/10 text-center">
+            <p className="text-2xl font-bold text-emerald-300">{stats.totalGames}</p>
+            <p className="text-xs text-white/50 font-semibold">Games</p>
+          </div>
+          <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/10 text-center">
+            <p className="text-2xl font-bold text-yellow-300">{stats.totalCoins}</p>
+            <p className="text-xs text-white/50 font-semibold">Coins</p>
+          </div>
+        </div>
+      </div>
 
       {/* Game categories */}
       <main className="px-4 pb-12 max-w-2xl mx-auto space-y-8">
@@ -97,7 +130,7 @@ export function PupilHome() {
                     key={game.id}
                     className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all text-left ${
                       playable
-                        ? 'bg-white/10 hover:bg-white/15 backdrop-blur-sm border-white/10 hover:border-white/20 hover:scale-[1.03] cursor-pointer'
+                        ? 'bg-white/10 hover:bg-white/15 backdrop-blur-sm border-white/10 hover:border-white/20 hover:scale-[1.03] cursor-pointer active:scale-[0.97]'
                         : 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed'
                     }`}
                     onClick={() => playable && setActiveGame(game.id)}
@@ -115,6 +148,11 @@ export function PupilHome() {
           </section>
         ))}
       </main>
+
+      {/* Footer */}
+      <footer className="text-center pb-6 text-xs text-white/20">
+        South Lodge Primary, Invergordon
+      </footer>
     </div>
   );
 }
