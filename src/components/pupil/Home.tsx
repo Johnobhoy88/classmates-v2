@@ -3,7 +3,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { GameShell } from '../shared/GameShell';
 import { useProgress } from '../../hooks/useProgress';
 
-const PLAYABLE_GAMES = new Set(['spelling', 'maths', 'spellforest', 'numberforge', 'times', 'phonics', 'bonds']);
+const PLAYABLE_GAMES = new Set(['spelling', 'maths', 'spellforest', 'numberforge', 'times', 'phonics', 'bonds', 'vocab', 'fractions']);
 
 const GAME_CATEGORIES = [
   {

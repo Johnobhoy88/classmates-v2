@@ -8,6 +8,8 @@ import { ForgeScene } from '../../game/scenes/ForgeScene';
 import { TimesScene } from '../../game/scenes/TimesScene';
 import { PhonicsScene } from '../../game/scenes/PhonicsScene';
 import { BondsScene } from '../../game/scenes/BondsScene';
+import { VocabScene } from '../../game/scenes/VocabScene';
+import { FractionsScene } from '../../game/scenes/FractionsScene';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 
@@ -19,6 +21,8 @@ const SCENE_MAP: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
   times: { scene: TimesScene, key: 'TimesScene' },
   phonics: { scene: PhonicsScene, key: 'PhonicsScene' },
   bonds: { scene: BondsScene, key: 'BondsScene' },
+  vocab: { scene: VocabScene, key: 'VocabScene' },
+  fractions: { scene: FractionsScene, key: 'FractionsScene' },
 };
 
 interface GameShellProps {
