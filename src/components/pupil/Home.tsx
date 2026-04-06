@@ -23,6 +23,11 @@ import { MoneyQuiz } from '../games/MoneyQuiz';
 import { TellingTimeQuiz } from '../games/TellingTimeQuiz';
 import { PlaceValueQuiz } from '../games/PlaceValueQuiz';
 import { MissingNumQuiz } from '../games/MissingNumQuiz';
+import { SpeedMathsQuiz } from '../games/SpeedMathsQuiz';
+import { DataHandlingQuiz } from '../games/DataHandlingQuiz';
+import { SequencesQuiz } from '../games/SequencesQuiz';
+import { DictationQuiz } from '../games/DictationQuiz';
+import { VowelsQuiz } from '../games/VowelsQuiz';
 
 // Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
@@ -53,6 +58,11 @@ const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = 
   telltime: TellingTimeQuiz,
   placeval: PlaceValueQuiz,
   missnum: MissingNumQuiz,
+  speed: SpeedMathsQuiz,
+  datahandling: DataHandlingQuiz,
+  sequence: SequencesQuiz,
+  dictation: DictationQuiz,
+  vowels: VowelsQuiz,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -69,6 +79,8 @@ const GAME_CATEGORIES = [
       { id: 'rhyme', title: 'Rhyming', icon: '\u266B', desc: 'Match sounds' },
       { id: 'punctuation', title: 'Punctuation', icon: '.?!', desc: 'Fix the marks' },
       { id: 'wordfam', title: 'Word Families', icon: '-ing', desc: 'Common endings' },
+      { id: 'dictation', title: 'Dictation', icon: '\u{1F50A}', desc: 'Listen and spell' },
+      { id: 'vowels', title: 'Missing Vowels', icon: '_e_', desc: 'Fill the gaps' },
       { id: 'reading', title: 'Reading', icon: 'Bb', desc: 'Stories & questions' },
     ],
   },
@@ -87,6 +99,9 @@ const GAME_CATEGORIES = [
       { id: 'missnum', title: 'Missing Number', icon: '?', desc: 'Find the gap' },
       { id: 'measure', title: 'Measurement', icon: 'cm', desc: 'Units & comparisons' },
       { id: 'wordprob', title: 'Word Problems', icon: '!', desc: 'Real-world maths' },
+      { id: 'speed', title: 'Speed Maths', icon: '60s', desc: 'Beat the clock!' },
+      { id: 'datahandling', title: 'Data Handling', icon: '\u{1F4CA}', desc: 'Charts & graphs' },
+      { id: 'sequence', title: 'Sequences', icon: '1,2,?', desc: 'Spot the pattern' },
     ],
   },
   {
