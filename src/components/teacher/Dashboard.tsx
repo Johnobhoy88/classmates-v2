@@ -1,8 +1,21 @@
+import { useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { Roster } from './Roster';
+import { Progress } from './Progress';
+import { Assignments } from './Assignments';
+
+type Tab = 'overview' | 'pupils' | 'progress' | 'assign';
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'pupils', label: 'Pupils' },
+  { id: 'progress', label: 'Progress' },
+  { id: 'assign', label: 'Assign' },
+];
 
 export function Dashboard() {
   const { teacher, signOut } = useAuth();
+  const [tab, setTab] = useState<Tab>('overview');
 
   if (!teacher) return null;
 
@@ -32,17 +45,46 @@ export function Dashboard() {
         </div>
       </header>
 
+      {/* Tabs */}
+      <nav className="bg-white border-b border-gray-200 px-6 flex gap-1">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`px-5 py-3 text-sm font-semibold border-b-2 transition-colors ${
+              tab === t.id
+                ? 'border-teal-600 text-teal-700'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </nav>
+
       {/* Content */}
       <main className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Class</h2>
-          <p className="text-gray-500">
-            Share your class code <span className="font-mono font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded">{teacher.class_code}</span> with pupils.
-            They'll use this with their PIN to log in.
-          </p>
-        </div>
+        {tab === 'overview' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-lg font-bold text-gray-900 mb-2">Welcome</h2>
+              <p className="text-gray-500">
+                Share your class code{' '}
+                <span className="font-mono font-bold text-teal-600 bg-teal-50 px-2 py-1 rounded">
+                  {teacher.class_code}
+                </span>{' '}
+                with pupils. They'll use this with their PIN to log in.
+              </p>
+            </div>
+            <Progress teacherId={teacher.id} />
+          </div>
+        )}
 
-        <Roster teacherId={teacher.id} />
+        {tab === 'pupils' && <Roster teacherId={teacher.id} />}
+
+        {tab === 'progress' && <Progress teacherId={teacher.id} />}
+
+        {tab === 'assign' && <Assignments teacherId={teacher.id} />}
       </main>
     </div>
   );
