@@ -32,6 +32,8 @@ import { AnagramQuiz } from '../games/AnagramQuiz';
 import { SentencesQuiz } from '../games/SentencesQuiz';
 import { MemoryMatchQuiz } from '../games/MemoryMatchQuiz';
 import { SpellingBeeQuiz } from '../games/SpellingBeeQuiz';
+import { TypingQuiz } from '../games/TypingQuiz';
+import { DailyChallenge } from '../games/DailyChallenge';
 
 // Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
@@ -71,6 +73,8 @@ const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = 
   sentence: SentencesQuiz,
   memorymatch: MemoryMatchQuiz,
   spellingbee: SpellingBeeQuiz,
+  typing: TypingQuiz,
+  daily: DailyChallenge,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -132,8 +136,9 @@ const GAME_CATEGORIES = [
     games: [
       { id: 'memorymatch', title: 'Memory Match', icon: '\u{1F0CF}', desc: 'Find the pairs!' },
       { id: 'spellingbee', title: 'Spelling Bee', icon: '\u{1F41D}', desc: 'How far?' },
-      { id: 'hdash', title: 'Southlodge Racers', icon: '\u{1F3CE}', desc: '3D racing!' },
+      { id: 'typing', title: 'Typing Speed', icon: '\u2328', desc: 'Type fast!' },
       { id: 'daily', title: 'Daily Challenge', icon: '\u{1F31F}', desc: 'New every day' },
+      { id: 'hdash', title: 'Southlodge Racers', icon: '\u{1F3CE}', desc: '3D racing!' },
     ],
   },
 ];
