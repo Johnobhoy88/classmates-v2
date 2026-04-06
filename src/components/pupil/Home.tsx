@@ -28,6 +28,10 @@ import { DataHandlingQuiz } from '../games/DataHandlingQuiz';
 import { SequencesQuiz } from '../games/SequencesQuiz';
 import { DictationQuiz } from '../games/DictationQuiz';
 import { VowelsQuiz } from '../games/VowelsQuiz';
+import { AnagramQuiz } from '../games/AnagramQuiz';
+import { SentencesQuiz } from '../games/SentencesQuiz';
+import { MemoryMatchQuiz } from '../games/MemoryMatchQuiz';
+import { SpellingBeeQuiz } from '../games/SpellingBeeQuiz';
 
 // Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
@@ -63,6 +67,10 @@ const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = 
   sequence: SequencesQuiz,
   dictation: DictationQuiz,
   vowels: VowelsQuiz,
+  anagram: AnagramQuiz,
+  sentence: SentencesQuiz,
+  memorymatch: MemoryMatchQuiz,
+  spellingbee: SpellingBeeQuiz,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -81,6 +89,8 @@ const GAME_CATEGORIES = [
       { id: 'wordfam', title: 'Word Families', icon: '-ing', desc: 'Common endings' },
       { id: 'dictation', title: 'Dictation', icon: '\u{1F50A}', desc: 'Listen and spell' },
       { id: 'vowels', title: 'Missing Vowels', icon: '_e_', desc: 'Fill the gaps' },
+      { id: 'anagram', title: 'Anagrams', icon: 'ABC', desc: 'Unjumble the letters' },
+      { id: 'sentence', title: 'Sentences', icon: '1 2 3', desc: 'Put words in order' },
       { id: 'reading', title: 'Reading', icon: 'Bb', desc: 'Stories & questions' },
     ],
   },
@@ -120,9 +130,10 @@ const GAME_CATEGORIES = [
     name: 'Challenge',
     color: 'bg-purple-500',
     games: [
+      { id: 'memorymatch', title: 'Memory Match', icon: '\u{1F0CF}', desc: 'Find the pairs!' },
+      { id: 'spellingbee', title: 'Spelling Bee', icon: '\u{1F41D}', desc: 'How far?' },
       { id: 'hdash', title: 'Southlodge Racers', icon: '\u{1F3CE}', desc: '3D racing!' },
       { id: 'daily', title: 'Daily Challenge', icon: '\u{1F31F}', desc: 'New every day' },
-      { id: 'spellingbee', title: 'Spelling Bee', icon: '\u{1F41D}', desc: 'How far?' },
     ],
   },
 ];
