@@ -2,11 +2,13 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import Phaser from 'phaser';
 import { createPhaserGame } from '../../game/PhaserGame';
 import { SpellingScene } from '../../game/scenes/SpellingScene';
+import { MathsScene } from '../../game/scenes/MathsScene';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 
-const SCENE_MAP: Record<string, typeof Phaser.Scene> = {
-  spelling: SpellingScene,
+const SCENE_MAP: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
+  spelling: { scene: SpellingScene, key: 'SpellingScene' },
+  maths: { scene: MathsScene, key: 'MathsScene' },
 };
 
 interface GameShellProps {
@@ -58,8 +60,11 @@ export function GameShell({ gameId, onExit }: GameShellProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const SceneClass = SCENE_MAP[gameId];
-    if (!SceneClass) return;
+    const entry = SCENE_MAP[gameId];
+    if (!entry) return;
+
+    const sceneKey = entry.key;
+    const completeCb = handleComplete;
 
     // Create a wrapper scene that passes data to the real scene
     class LauncherScene extends Phaser.Scene {
@@ -67,16 +72,16 @@ export function GameShell({ gameId, onExit }: GameShellProps) {
         super({ key: 'Launcher' });
       }
       create() {
-        this.scene.start('SpellingScene', {
+        this.scene.start(sceneKey, {
           level: 1,
-          onComplete: handleComplete,
+          onComplete: completeCb,
         });
       }
     }
 
     const game = createPhaserGame({
       parent: containerRef.current,
-      scenes: [LauncherScene, SceneClass],
+      scenes: [LauncherScene, entry.scene],
     });
     gameRef.current = game;
 

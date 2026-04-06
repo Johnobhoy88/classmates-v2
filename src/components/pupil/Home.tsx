@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { GameShell } from '../shared/GameShell';
 
-const PLAYABLE_GAMES = new Set(['spelling']);
+const PLAYABLE_GAMES = new Set(['spelling', 'maths']);
 
 const GAME_CATEGORIES = [
   {
