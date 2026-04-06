@@ -15,6 +15,9 @@ import { WordProbQuiz } from '../games/WordProbQuiz';
 import { PunctuationQuiz } from '../games/PunctuationQuiz';
 import { BondsQuiz } from '../games/BondsQuiz';
 import { CapitalsQuiz, ContinentsQuiz, WeatherQuiz, CompassQuiz, FlagsQuiz, ScotQuiz } from '../games/GeoQuiz';
+import { ReadingQuiz } from '../games/ReadingQuiz';
+import { TimesQuiz } from '../games/TimesQuiz';
+import { WordFamQuiz } from '../games/WordFamQuiz';
 
 // Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
@@ -37,6 +40,9 @@ const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = 
   compass: CompassQuiz,
   flags: FlagsQuiz,
   scotquiz: ScotQuiz,
+  reading: ReadingQuiz,
+  times: TimesQuiz,
+  wordfam: WordFamQuiz,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -52,6 +58,7 @@ const GAME_CATEGORIES = [
       { id: 'grammar', title: 'Grammar', icon: 'N V', desc: 'Word types' },
       { id: 'rhyme', title: 'Rhyming', icon: '\u266B', desc: 'Match sounds' },
       { id: 'punctuation', title: 'Punctuation', icon: '.?!', desc: 'Fix the marks' },
+      { id: 'wordfam', title: 'Word Families', icon: '-ing', desc: 'Common endings' },
       { id: 'reading', title: 'Reading', icon: 'Bb', desc: 'Stories & questions' },
     ],
   },
