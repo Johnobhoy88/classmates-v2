@@ -3,16 +3,14 @@ import { PUNCT_DATA, type PunctLevel } from '../../game/content/punctuation-data
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
 import { LevelSelect } from '../shared/LevelSelect';
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a;
-}
+function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 function buildQuestions(level: PunctLevel): QuizQuestion[] {
   return shuffle([...PUNCT_DATA[level]]).slice(0, 10).map((entry) => ({
-    prompt: `Which is correct?`,
+    prompt: 'Which is correct?',
     display: entry.wrong,
-    answer: entry.correct,
-    options: [entry.correct, entry.wrong],
+    answer: entry.right,
+    options: [entry.right, entry.wrong],
   }));
 }
 

@@ -3,16 +3,19 @@ import { WORD_PROBLEMS, type WordProbLevel } from '../../game/content/wordprob-d
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
 import { LevelSelect } from '../shared/LevelSelect';
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a;
-}
+function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function rand(min: number, max: number) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
 function buildQuestions(level: WordProbLevel): QuizQuestion[] {
-  return shuffle([...WORD_PROBLEMS[level]]).slice(0, 10).map((entry) => ({
-    prompt: entry.q,
-    answer: entry.correct,
-    options: [...entry.opts],
-  }));
+  return shuffle([...WORD_PROBLEMS[level]]).slice(0, 10).map((entry) => {
+    const answer = String(entry.a);
+    const opts = [answer];
+    while (opts.length < 4) {
+      const w = String(entry.a + rand(-3, 3));
+      if (!opts.includes(w) && Number(w) >= 0) opts.push(w);
+    }
+    return { prompt: entry.q, answer, options: shuffle(opts) };
+  });
 }
 
 export function WordProbQuiz({ onExit }: { onExit: () => void }) {

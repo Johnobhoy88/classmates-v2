@@ -52,7 +52,8 @@ export class SpellingScene extends Phaser.Scene {
   private keyTexts: Map<string, Phaser.GameObjects.Text> = new Map();
   private hearts: Phaser.GameObjects.Arc[] = [];
   private hintText!: Phaser.GameObjects.Text;
-  private progressBar!: Phaser.GameObjects.Rectangle;
+  // @ts-expect-error assigned in create, used for layout
+  private _progressBar!: Phaser.GameObjects.Rectangle;
   private progressFill!: Phaser.GameObjects.Rectangle;
   private streakText!: Phaser.GameObjects.Text;
   private wordGroup!: Phaser.GameObjects.Container;
@@ -65,7 +66,8 @@ export class SpellingScene extends Phaser.Scene {
   init(data: { level?: number; onComplete?: OnCompleteCallback }) {
     const level = data.level || 1;
     const maxLives = level === 1 ? 7 : level === 2 ? 6 : 5;
-    const pool = [...(SPELLING[level] || SPELLING[1])];
+    const lvl = (level === 1 || level === 2 || level === 3 ? level : 1) as 1 | 2 | 3;
+    const pool = [...(SPELLING[lvl])];
     Phaser.Utils.Array.Shuffle(pool);
     const words = pool.slice(0, 10);
 
@@ -131,7 +133,7 @@ export class SpellingScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Progress bar
-    this.progressBar = this.add.rectangle(width / 2, height - 20, width - 40, 8, 0x1a3a4a).setOrigin(0.5);
+    this._progressBar = this.add.rectangle(width / 2, height - 20, width - 40, 8, 0x1a3a4a).setOrigin(0.5);
     this.progressFill = this.add.rectangle(20, height - 20, 0, 8, 0x3aaa4a).setOrigin(0, 0.5);
 
     // Hearts (lives)

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { genMathQuestion, type MathLevel } from '../../game/content/maths-data';
-import { sfxCorrect, sfxWrong, sfxClick } from '../../game/systems/AudioSystem';
+import { sfxWrong, sfxClick } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { LevelSelect } from '../shared/LevelSelect';

@@ -14,7 +14,7 @@ const ShapesQuiz = lazy(() => import('../games/ShapesQuiz').then(m => ({ default
 const WordProbQuiz = lazy(() => import('../games/WordProbQuiz').then(m => ({ default: m.WordProbQuiz })));
 const PunctuationQuiz = lazy(() => import('../games/PunctuationQuiz').then(m => ({ default: m.PunctuationQuiz })));
 const BondsQuiz = lazy(() => import('../games/BondsQuiz').then(m => ({ default: m.BondsQuiz })));
-const GeoQuizModule = lazy(() => import('../games/GeoQuiz'));
+// GeoQuiz loaded dynamically in GeoQuizLazy below
 const ReadingQuiz = lazy(() => import('../games/ReadingQuiz').then(m => ({ default: m.ReadingQuiz })));
 const TimesQuiz = lazy(() => import('../games/TimesQuiz').then(m => ({ default: m.TimesQuiz })));
 const WordFamQuiz = lazy(() => import('../games/WordFamQuiz').then(m => ({ default: m.WordFamQuiz })));
