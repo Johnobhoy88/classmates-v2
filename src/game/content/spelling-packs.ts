@@ -1,0 +1,58 @@
+export interface SpellingWord {
+  w: string;
+  h: string;
+}
+
+export const SPELLING: Record<number, SpellingWord[]> = {
+  1: [
+    { w: 'cat', h: 'A furry pet that purrs' },
+    { w: 'dog', h: 'A loyal pet that barks' },
+    { w: 'sun', h: 'Shines in the sky' },
+    { w: 'hat', h: 'Wear it on your head' },
+    { w: 'bed', h: 'Where you sleep' },
+    { w: 'cup', h: 'Drink from this' },
+    { w: 'pig', h: 'Pink farm animal' },
+    { w: 'hen', h: 'Lays eggs on the farm' },
+    { w: 'bus', h: 'Big vehicle for passengers' },
+    { w: 'map', h: 'Shows you where to go' },
+    { w: 'run', h: 'Move your legs fast' },
+    { w: 'box', h: 'Put things inside this' },
+    { w: 'fox', h: 'Orange animal with a bushy tail' },
+    { w: 'net', h: 'Catch fish with this' },
+    { w: 'jam', h: 'Spread it on toast' },
+  ],
+  2: [
+    { w: 'house', h: 'A building where people live' },
+    { w: 'table', h: 'Eat your dinner at this' },
+    { w: 'water', h: 'You drink this every day' },
+    { w: 'happy', h: 'Feeling glad and joyful' },
+    { w: 'green', h: 'The colour of grass' },
+    { w: 'light', h: 'The opposite of dark' },
+    { w: 'think', h: 'Use your brain to do this' },
+    { w: 'climb', h: 'Go up a mountain' },
+    { w: 'river', h: 'Water flows through this' },
+    { w: 'magic', h: 'Wizards use this power' },
+    { w: 'castle', h: 'A king or queen lives here' },
+    { w: 'forest', h: 'Full of trees and wildlife' },
+    { w: 'bridge', h: 'Cross over water on this' },
+    { w: 'brave', h: 'Not afraid of anything' },
+    { w: 'garden', h: 'Grow flowers and plants here' },
+  ],
+  3: [
+    { w: 'adventure', h: 'An exciting journey' },
+    { w: 'beautiful', h: 'Very pretty to look at' },
+    { w: 'knowledge', h: 'What you gain from learning' },
+    { w: 'mountain', h: 'Very tall landform with a peak' },
+    { w: 'question', h: 'You ask this to find out' },
+    { w: 'different', h: 'Not the same as others' },
+    { w: 'Scotland', h: 'Our country in the UK' },
+    { w: 'together', h: 'With each other, not alone' },
+    { w: 'strength', h: 'Being strong and powerful' },
+    { w: 'through', h: 'Going from one side to the other' },
+    { w: 'whisper', h: 'Talk very quietly' },
+    { w: 'enormous', h: 'Really really big' },
+    { w: 'invisible', h: 'Cannot be seen' },
+    { w: 'treasure', h: 'Valuable hidden things' },
+    { w: 'Highland', h: 'The north of Scotland' },
+  ],
+};

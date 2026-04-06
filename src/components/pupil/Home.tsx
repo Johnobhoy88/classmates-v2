@@ -1,4 +1,8 @@
+import { useState } from 'react';
 import { useAuth } from '../auth/AuthProvider';
+import { GameShell } from '../shared/GameShell';
+
+const PLAYABLE_GAMES = new Set(['spelling']);
 
 const GAME_CATEGORIES = [
   {
@@ -39,8 +43,18 @@ const GAME_CATEGORIES = [
 
 export function PupilHome() {
   const { pupil, logoutPupil } = useAuth();
+  const [activeGame, setActiveGame] = useState<string | null>(null);
 
   if (!pupil) return null;
+
+  if (activeGame) {
+    return (
+      <GameShell
+        gameId={activeGame}
+        onExit={() => setActiveGame(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-900 via-emerald-900 to-teal-900">
@@ -76,20 +90,27 @@ export function PupilHome() {
               {cat.name}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {cat.games.map((game) => (
-                <button
-                  key={game.id}
-                  className="flex flex-col items-center gap-2 p-4 bg-white/10 hover:bg-white/15 backdrop-blur-sm rounded-2xl border border-white/10 hover:border-white/20 transition-all hover:scale-[1.03] text-left"
-                  onClick={() => {
-                    // TODO: Launch Phaser scene
-                    alert(`Launching ${game.title}... (game engine coming in Phase 2)`);
-                  }}
-                >
-                  <span className="text-2xl">{game.icon}</span>
-                  <span className="text-sm font-bold text-white">{game.title}</span>
-                  <span className="text-xs text-white/50">{game.desc}</span>
-                </button>
-              ))}
+              {cat.games.map((game) => {
+                const playable = PLAYABLE_GAMES.has(game.id);
+                return (
+                  <button
+                    key={game.id}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all text-left ${
+                      playable
+                        ? 'bg-white/10 hover:bg-white/15 backdrop-blur-sm border-white/10 hover:border-white/20 hover:scale-[1.03] cursor-pointer'
+                        : 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed'
+                    }`}
+                    onClick={() => playable && setActiveGame(game.id)}
+                    disabled={!playable}
+                  >
+                    <span className="text-2xl">{game.icon}</span>
+                    <span className="text-sm font-bold text-white">{game.title}</span>
+                    <span className="text-xs text-white/50">
+                      {playable ? game.desc : 'Coming soon'}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </section>
         ))}
