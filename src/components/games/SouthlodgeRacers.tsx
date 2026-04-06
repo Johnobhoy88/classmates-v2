@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { sfxCorrect, sfxWrong, sfxStreak, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { buildMissionWords, getDefaultPack, type WordEntry as PackWordEntry } from '../../game/content/racers-packs';
 
 // ============================================================
 // SOUTHLODGE RACERS — Faithful Three.js port from V1
@@ -240,8 +241,20 @@ export function SouthlodgeRacers({ onExit }: { onExit: () => void }) {
     scene.add(car);
 
     // Session
-    // Use fallback words (racers-packs.ts will be wired when available)
-    const words: WordEntry[] = [...FALLBACK_WORDS];
+    // Load real V1 pack data
+    let words: WordEntry[];
+    try {
+      const pack = getDefaultPack('Early');
+      const missionWords = buildMissionWords(pack.id, 7);
+      words = missionWords.map((mw: PackWordEntry) => ({
+        word: mw.word,
+        sentence: mw.sentence,
+        audioText: mw.audioText,
+        confusions: mw.confusions,
+      }));
+    } catch {
+      words = [...FALLBACK_WORDS];
+    }
 
     const session: RacerSession = {
       words, wordIndex: 0, completed: 0, correct: 0, streak: 0, maxStreak: 0,
