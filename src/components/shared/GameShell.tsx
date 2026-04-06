@@ -6,6 +6,8 @@ import { MathsScene } from '../../game/scenes/MathsScene';
 import { ForestScene } from '../../game/scenes/ForestScene';
 import { ForgeScene } from '../../game/scenes/ForgeScene';
 import { TimesScene } from '../../game/scenes/TimesScene';
+import { PhonicsScene } from '../../game/scenes/PhonicsScene';
+import { BondsScene } from '../../game/scenes/BondsScene';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 
@@ -15,6 +17,8 @@ const SCENE_MAP: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
   spellforest: { scene: ForestScene, key: 'ForestScene' },
   numberforge: { scene: ForgeScene, key: 'ForgeScene' },
   times: { scene: TimesScene, key: 'TimesScene' },
+  phonics: { scene: PhonicsScene, key: 'PhonicsScene' },
+  bonds: { scene: BondsScene, key: 'BondsScene' },
 };
 
 interface GameShellProps {
