@@ -3,12 +3,16 @@ import Phaser from 'phaser';
 import { createPhaserGame } from '../../game/PhaserGame';
 import { SpellingScene } from '../../game/scenes/SpellingScene';
 import { MathsScene } from '../../game/scenes/MathsScene';
+import { ForestScene } from '../../game/scenes/ForestScene';
+import { ForgeScene } from '../../game/scenes/ForgeScene';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 
 const SCENE_MAP: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
   spelling: { scene: SpellingScene, key: 'SpellingScene' },
   maths: { scene: MathsScene, key: 'MathsScene' },
+  spellforest: { scene: ForestScene, key: 'ForestScene' },
+  numberforge: { scene: ForgeScene, key: 'ForgeScene' },
 };
 
 interface GameShellProps {
