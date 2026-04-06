@@ -18,6 +18,11 @@ import { CapitalsQuiz, ContinentsQuiz, WeatherQuiz, CompassQuiz, FlagsQuiz, Scot
 import { ReadingQuiz } from '../games/ReadingQuiz';
 import { TimesQuiz } from '../games/TimesQuiz';
 import { WordFamQuiz } from '../games/WordFamQuiz';
+import { FractionsQuiz } from '../games/FractionsQuiz';
+import { MoneyQuiz } from '../games/MoneyQuiz';
+import { TellingTimeQuiz } from '../games/TellingTimeQuiz';
+import { PlaceValueQuiz } from '../games/PlaceValueQuiz';
+import { MissingNumQuiz } from '../games/MissingNumQuiz';
 
 // Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
@@ -43,6 +48,11 @@ const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = 
   reading: ReadingQuiz,
   times: TimesQuiz,
   wordfam: WordFamQuiz,
+  fractions: FractionsQuiz,
+  money: MoneyQuiz,
+  telltime: TellingTimeQuiz,
+  placeval: PlaceValueQuiz,
+  missnum: MissingNumQuiz,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -70,8 +80,13 @@ const GAME_CATEGORIES = [
       { id: 'bonds', title: 'Number Bonds', icon: '10', desc: 'Make the number!' },
       { id: 'times', title: 'Times Tables', icon: '\u00D7', desc: 'Speed drill' },
       { id: 'shapes', title: 'Shapes', icon: '\u25B3', desc: 'Geometry' },
+      { id: 'fractions', title: 'Fractions', icon: '\u00BD', desc: 'Parts of a whole' },
+      { id: 'money', title: 'Money', icon: '\u00A3p', desc: 'Coins & change' },
+      { id: 'telltime', title: 'Telling Time', icon: '3:00', desc: 'Read the clock' },
+      { id: 'placeval', title: 'Place Value', icon: 'HTO', desc: 'Hundreds, tens, ones' },
+      { id: 'missnum', title: 'Missing Number', icon: '?', desc: 'Find the gap' },
       { id: 'measure', title: 'Measurement', icon: 'cm', desc: 'Units & comparisons' },
-      { id: 'wordprob', title: 'Word Problems', icon: '?', desc: 'Real-world maths' },
+      { id: 'wordprob', title: 'Word Problems', icon: '!', desc: 'Real-world maths' },
     ],
   },
   {
