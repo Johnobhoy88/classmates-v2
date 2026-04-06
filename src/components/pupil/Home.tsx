@@ -3,7 +3,10 @@ import { useAuth } from '../auth/AuthProvider';
 import { GameShell } from '../shared/GameShell';
 import { useProgress } from '../../hooks/useProgress';
 
-const PLAYABLE_GAMES = new Set(['spelling', 'maths', 'spellforest', 'numberforge', 'times', 'phonics', 'bonds', 'vocab', 'fractions']);
+// Tier 2 (Phaser) games — immersive flagship experiences
+const PHASER_GAMES = new Set(['spelling']);
+// All playable games (Phaser + React quiz)
+const PLAYABLE_GAMES = new Set(['spelling']);
 
 const GAME_CATEGORIES = [
   {

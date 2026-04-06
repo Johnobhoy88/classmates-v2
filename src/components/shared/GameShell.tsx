@@ -2,27 +2,13 @@ import { useEffect, useRef, useCallback, useState } from 'react';
 import Phaser from 'phaser';
 import { createPhaserGame } from '../../game/PhaserGame';
 import { SpellingScene } from '../../game/scenes/SpellingScene';
-import { MathsScene } from '../../game/scenes/MathsScene';
-import { ForestScene } from '../../game/scenes/ForestScene';
-import { ForgeScene } from '../../game/scenes/ForgeScene';
-import { TimesScene } from '../../game/scenes/TimesScene';
-import { PhonicsScene } from '../../game/scenes/PhonicsScene';
-import { BondsScene } from '../../game/scenes/BondsScene';
-import { VocabScene } from '../../game/scenes/VocabScene';
-import { FractionsScene } from '../../game/scenes/FractionsScene';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 
-const SCENE_MAP: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
+// Tier 2: Phaser scenes for flagship immersive games
+const PHASER_SCENES: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
   spelling: { scene: SpellingScene, key: 'SpellingScene' },
-  maths: { scene: MathsScene, key: 'MathsScene' },
-  spellforest: { scene: ForestScene, key: 'ForestScene' },
-  numberforge: { scene: ForgeScene, key: 'ForgeScene' },
-  times: { scene: TimesScene, key: 'TimesScene' },
-  phonics: { scene: PhonicsScene, key: 'PhonicsScene' },
-  bonds: { scene: BondsScene, key: 'BondsScene' },
-  vocab: { scene: VocabScene, key: 'VocabScene' },
-  fractions: { scene: FractionsScene, key: 'FractionsScene' },
+  // Future: platformer, forest, forge scenes will go here
 };
 
 interface GameShellProps {
@@ -46,7 +32,6 @@ export function GameShell({ gameId, onExit }: GameShellProps) {
     (res: { correct: number; total: number; stars: number; bestStreak: number; missed: Array<{ w: string; h: string }> }) => {
       setResult(res);
 
-      // Save progress
       if (pupil) {
         recordGameResult({
           pupilId: pupil.id,
@@ -60,7 +45,6 @@ export function GameShell({ gameId, onExit }: GameShellProps) {
         });
       }
 
-      // Destroy Phaser after a brief delay
       setTimeout(() => {
         if (gameRef.current) {
           gameRef.current.destroy(true);
@@ -74,13 +58,12 @@ export function GameShell({ gameId, onExit }: GameShellProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const entry = SCENE_MAP[gameId];
+    const entry = PHASER_SCENES[gameId];
     if (!entry) return;
 
     const sceneKey = entry.key;
     const completeCb = handleComplete;
 
-    // Create a wrapper scene that passes data to the real scene
     class LauncherScene extends Phaser.Scene {
       constructor() {
         super({ key: 'Launcher' });
@@ -121,31 +104,25 @@ export function GameShell({ gameId, onExit }: GameShellProps) {
           <p className="text-emerald-300 text-lg mb-6">
             {result.correct}/{result.total} correct ({pct}%)
           </p>
-
           {result.bestStreak >= 3 && (
             <p className="text-amber-300 text-sm mb-4">
               Best streak: {result.bestStreak} words in a row!
             </p>
           )}
-
           {result.missed.length > 0 && (
             <div className="text-left mb-6">
               <p className="text-white/60 text-sm font-semibold mb-2">Words to practise:</p>
               {result.missed.map((m, i) => (
-                <div
-                  key={i}
-                  className="bg-white/5 rounded-xl px-4 py-2 mb-2 border border-white/10"
-                >
+                <div key={i} className="bg-white/5 rounded-xl px-4 py-2 mb-2 border border-white/10">
                   <span className="text-white font-bold capitalize">{m.w}</span>
                   <span className="text-white/50 text-sm ml-2">— {m.h}</span>
                 </div>
               ))}
             </div>
           )}
-
           <div className="flex gap-3">
             <button
-              onClick={() => { setResult(null); }}
+              onClick={() => setResult(null)}
               className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl transition-colors"
             >
               Play Again

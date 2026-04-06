@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { SPELLING, type SpellingWord } from '../content/spelling-packs';
+import { SPELLING, type SpellingWord } from '../content/spelling-data';
 import { sfxCorrect, sfxWrong, sfxStreak, sfxLevelUp } from '../systems/AudioSystem';
 
 // Callback for when the game ends
