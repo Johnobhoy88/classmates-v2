@@ -34,6 +34,7 @@ import { MemoryMatchQuiz } from '../games/MemoryMatchQuiz';
 import { SpellingBeeQuiz } from '../games/SpellingBeeQuiz';
 import { TypingQuiz } from '../games/TypingQuiz';
 import { DailyChallenge } from '../games/DailyChallenge';
+import { HeadToHead } from '../games/HeadToHead';
 
 // Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
@@ -75,6 +76,7 @@ const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = 
   spellingbee: SpellingBeeQuiz,
   typing: TypingQuiz,
   daily: DailyChallenge,
+  h2h: HeadToHead,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -138,6 +140,7 @@ const GAME_CATEGORIES = [
       { id: 'spellingbee', title: 'Spelling Bee', icon: '\u{1F41D}', desc: 'How far?' },
       { id: 'typing', title: 'Typing Speed', icon: '\u2328', desc: 'Type fast!' },
       { id: 'daily', title: 'Daily Challenge', icon: '\u{1F31F}', desc: 'New every day' },
+      { id: 'h2h', title: 'Head to Head', icon: '\u{1F93C}', desc: '2-player maths race!' },
       { id: 'hdash', title: 'Southlodge Racers', icon: '\u{1F3CE}', desc: '3D racing!' },
     ],
   },
