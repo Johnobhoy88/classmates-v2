@@ -35,6 +35,7 @@ const SpellingBeeQuiz = lazy(() => import('../games/SpellingBeeQuiz').then(m => 
 const TypingQuiz = lazy(() => import('../games/TypingQuiz').then(m => ({ default: m.TypingQuiz })));
 const DailyChallenge = lazy(() => import('../games/DailyChallenge').then(m => ({ default: m.DailyChallenge })));
 const HeadToHead = lazy(() => import('../games/HeadToHead').then(m => ({ default: m.HeadToHead })));
+const SouthlodgeRacers = lazy(() => import('../games/SouthlodgeRacers').then(m => ({ default: m.SouthlodgeRacers })));
 
 // Lazy wrappers for geo quiz variants
 function CapitalsQuiz(props: { onExit: () => void }) { return <Suspense fallback={<GameLoading />}><GeoQuizLazy variant="capitals" {...props} /></Suspense>; }
@@ -81,7 +82,7 @@ const QUIZ_GAMES: Record<string, ComponentType<{ onExit: () => void }>> = {
   dictation: DictationQuiz, vowels: VowelsQuiz,
   anagram: AnagramQuiz, sentence: SentencesQuiz,
   memorymatch: MemoryMatchQuiz, spellingbee: SpellingBeeQuiz,
-  typing: TypingQuiz, daily: DailyChallenge, h2h: HeadToHead,
+  typing: TypingQuiz, daily: DailyChallenge, h2h: HeadToHead, hdash: SouthlodgeRacers,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
