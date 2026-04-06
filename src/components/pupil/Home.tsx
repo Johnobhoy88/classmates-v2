@@ -3,10 +3,43 @@ import { useAuth } from '../auth/AuthProvider';
 import { GameShell } from '../shared/GameShell';
 import { useProgress } from '../../hooks/useProgress';
 
-// Tier 2 (Phaser) games — immersive flagship experiences
+// Quiz game adapters
+import { MathsQuiz } from '../games/MathsQuiz';
+import { GrammarQuiz } from '../games/GrammarQuiz';
+import { VocabQuiz } from '../games/VocabQuiz';
+import { PhonicsQuiz } from '../games/PhonicsQuiz';
+import { RhymeQuiz } from '../games/RhymeQuiz';
+import { MeasureQuiz } from '../games/MeasureQuiz';
+import { ShapesQuiz } from '../games/ShapesQuiz';
+import { WordProbQuiz } from '../games/WordProbQuiz';
+import { PunctuationQuiz } from '../games/PunctuationQuiz';
+import { BondsQuiz } from '../games/BondsQuiz';
+import { CapitalsQuiz, ContinentsQuiz, WeatherQuiz, CompassQuiz, FlagsQuiz, ScotQuiz } from '../games/GeoQuiz';
+
+// Tier 2: Phaser games (immersive flagship experiences)
 const PHASER_GAMES = new Set(['spelling']);
-// All playable games (Phaser + React quiz)
-const PLAYABLE_GAMES = new Set(['spelling']);
+
+// Tier 1: React QuizEngine games
+const QUIZ_GAMES: Record<string, React.ComponentType<{ onExit: () => void }>> = {
+  maths: MathsQuiz,
+  grammar: GrammarQuiz,
+  vocab: VocabQuiz,
+  phonics: PhonicsQuiz,
+  rhyme: RhymeQuiz,
+  measure: MeasureQuiz,
+  shapes: ShapesQuiz,
+  wordprob: WordProbQuiz,
+  punctuation: PunctuationQuiz,
+  bonds: BondsQuiz,
+  capitals: CapitalsQuiz,
+  continents: ContinentsQuiz,
+  weather: WeatherQuiz,
+  compass: CompassQuiz,
+  flags: FlagsQuiz,
+  scotquiz: ScotQuiz,
+};
+
+const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
 
 const GAME_CATEGORIES = [
   {
@@ -14,10 +47,11 @@ const GAME_CATEGORIES = [
     color: 'bg-amber-500',
     games: [
       { id: 'spelling', title: 'Spelling', icon: 'Aa', desc: 'Guess the word!' },
-      { id: 'spellforest', title: 'Spellbound Forest', icon: '\u{1F332}', desc: 'Grow the forest!' },
       { id: 'phonics', title: 'Phonics', icon: 'ai', desc: 'Sound patterns' },
       { id: 'vocab', title: 'Vocabulary', icon: 'A-Z', desc: 'Words and meanings' },
       { id: 'grammar', title: 'Grammar', icon: 'N V', desc: 'Word types' },
+      { id: 'rhyme', title: 'Rhyming', icon: '\u266B', desc: 'Match sounds' },
+      { id: 'punctuation', title: 'Punctuation', icon: '.?!', desc: 'Fix the marks' },
       { id: 'reading', title: 'Reading', icon: 'Bb', desc: 'Stories & questions' },
     ],
   },
@@ -26,11 +60,23 @@ const GAME_CATEGORIES = [
     color: 'bg-blue-500',
     games: [
       { id: 'maths', title: 'Maths', icon: '1+2', desc: 'Number crunching!' },
-      { id: 'numberforge', title: 'Number Forge', icon: '\u{1F525}', desc: 'Craft with maths!' },
-      { id: 'times', title: 'Times Tables', icon: '\u00D7', desc: 'Speed drill' },
       { id: 'bonds', title: 'Number Bonds', icon: '10', desc: 'Make the number!' },
-      { id: 'fractions', title: 'Fractions', icon: '\u00BD', desc: 'Parts of a whole' },
+      { id: 'times', title: 'Times Tables', icon: '\u00D7', desc: 'Speed drill' },
       { id: 'shapes', title: 'Shapes', icon: '\u25B3', desc: 'Geometry' },
+      { id: 'measure', title: 'Measurement', icon: 'cm', desc: 'Units & comparisons' },
+      { id: 'wordprob', title: 'Word Problems', icon: '?', desc: 'Real-world maths' },
+    ],
+  },
+  {
+    name: 'Geography',
+    color: 'bg-emerald-600',
+    games: [
+      { id: 'capitals', title: 'Capitals', icon: '\u{1F3DB}', desc: 'Capital cities' },
+      { id: 'continents', title: 'Continents', icon: '\u{1F30D}', desc: 'World geography' },
+      { id: 'weather', title: 'Weather', icon: '\u2600', desc: 'Seasons & climate' },
+      { id: 'compass', title: 'Compass', icon: '\u{1F9ED}', desc: 'Directions' },
+      { id: 'flags', title: 'Flags', icon: '\u{1F3F3}', desc: 'Identify flags' },
+      { id: 'scotquiz', title: 'Scotland Quiz', icon: '\u{1F3F4}', desc: 'All about Scotland' },
     ],
   },
   {
@@ -40,7 +86,6 @@ const GAME_CATEGORIES = [
       { id: 'hdash', title: 'Southlodge Racers', icon: '\u{1F3CE}', desc: '3D racing!' },
       { id: 'daily', title: 'Daily Challenge', icon: '\u{1F31F}', desc: 'New every day' },
       { id: 'spellingbee', title: 'Spelling Bee', icon: '\u{1F41D}', desc: 'How far?' },
-      { id: 'typing', title: 'Typing Speed', icon: '\u2328', desc: 'Type fast!' },
     ],
   },
 ];
@@ -58,20 +103,23 @@ export function PupilHome() {
   const { stats, refresh } = useProgress(pupil?.id);
   const [greeting] = useState(getTimeGreeting);
 
-  // Refresh stats when returning from a game
   useEffect(() => {
     if (!activeGame && pupil) refresh();
   }, [activeGame, pupil, refresh]);
 
   if (!pupil) return null;
 
+  // Render active game
   if (activeGame) {
-    return (
-      <GameShell
-        gameId={activeGame}
-        onExit={() => setActiveGame(null)}
-      />
-    );
+    // Phaser games
+    if (PHASER_GAMES.has(activeGame)) {
+      return <GameShell gameId={activeGame} onExit={() => setActiveGame(null)} />;
+    }
+    // Quiz games
+    const QuizComponent = QUIZ_GAMES[activeGame];
+    if (QuizComponent) {
+      return <QuizComponent onExit={() => setActiveGame(null)} />;
+    }
   }
 
   return (
@@ -83,18 +131,11 @@ export function PupilHome() {
             {pupil.display_name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">
-              {greeting}, {pupil.display_name}!
-            </h1>
-            <p className="text-sm text-emerald-300/70">
-              Ready to learn?
-            </p>
+            <h1 className="text-xl font-bold text-white">{greeting}, {pupil.display_name}!</h1>
+            <p className="text-sm text-emerald-300/70">Ready to learn?</p>
           </div>
         </div>
-        <button
-          onClick={logoutPupil}
-          className="text-sm text-white/40 hover:text-white/70 px-3 py-2 rounded-lg hover:bg-white/5"
-        >
+        <button onClick={logoutPupil} className="text-sm text-white/40 hover:text-white/70 px-3 py-2 rounded-lg hover:bg-white/5">
           Switch pupil
         </button>
       </header>
@@ -127,7 +168,7 @@ export function PupilHome() {
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {cat.games.map((game) => {
-                const playable = PLAYABLE_GAMES.has(game.id);
+                const playable = ALL_PLAYABLE.has(game.id);
                 return (
                   <button
                     key={game.id}
@@ -141,9 +182,7 @@ export function PupilHome() {
                   >
                     <span className="text-2xl">{game.icon}</span>
                     <span className="text-sm font-bold text-white">{game.title}</span>
-                    <span className="text-xs text-white/50">
-                      {playable ? game.desc : 'Coming soon'}
-                    </span>
+                    <span className="text-xs text-white/50">{playable ? game.desc : 'Coming soon'}</span>
                   </button>
                 );
               })}
@@ -152,10 +191,7 @@ export function PupilHome() {
         ))}
       </main>
 
-      {/* Footer */}
-      <footer className="text-center pb-6 text-xs text-white/20">
-        South Lodge Primary, Invergordon
-      </footer>
+      <footer className="text-center pb-6 text-xs text-white/20">South Lodge Primary, Invergordon</footer>
     </div>
   );
 }

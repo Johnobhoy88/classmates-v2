@@ -1,0 +1,23 @@
+import { useState } from 'react';
+import { PUNCT_DATA, type PunctLevel } from '../../game/content/punctuation-data';
+import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
+import { LevelSelect } from '../shared/LevelSelect';
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a;
+}
+
+function buildQuestions(level: PunctLevel): QuizQuestion[] {
+  return shuffle([...PUNCT_DATA[level]]).slice(0, 10).map((entry) => ({
+    prompt: `Which is correct?`,
+    display: entry.wrong,
+    answer: entry.correct,
+    options: [entry.correct, entry.wrong],
+  }));
+}
+
+export function PunctuationQuiz({ onExit }: { onExit: () => void }) {
+  const [level, setLevel] = useState<PunctLevel | null>(null);
+  if (!level) return <LevelSelect title="Punctuation" color="#e44d26" icon=".?!" onSelect={(lv) => setLevel(lv as PunctLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'punctuation', title: 'Punctuation Done!', subtitle: `Level ${level}`, color: '#e44d26', icon: '.?!', questions: buildQuestions(level), adaptiveTopic: 'punctuation', wrongDelay: 1500 }} onExit={onExit} />;
+}
