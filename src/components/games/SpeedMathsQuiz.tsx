@@ -1,3 +1,10 @@
+/**
+ * Classmates — HighlandAI
+ * © 2026 John McMillan (HighlandAI). All rights reserved.
+ * Licensed under CC BY-NC 4.0
+ * https://github.com/Johnobhoy88/classmates-v2
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { genMathQuestion, type MathLevel } from '../../game/content/maths-data';
 import { sfxWrong, sfxClick } from '../../game/systems/AudioSystem';

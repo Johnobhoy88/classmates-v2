@@ -1,3 +1,10 @@
+/**
+ * Classmates — HighlandAI
+ * © 2026 John McMillan (HighlandAI). All rights reserved.
+ * Licensed under CC BY-NC 4.0
+ * https://github.com/Johnobhoy88/classmates-v2
+ */
+
 import { useState } from 'react';
 import { CAPS_DATA, CONT_DATA, WEATHER_DATA, COMPASS_Q, FLAGS_DATA, SCOT_QUIZ, type GeoQuestion, type GeoLevel } from '../../game/content/geography-data';
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';

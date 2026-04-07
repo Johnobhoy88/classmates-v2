@@ -1,3 +1,10 @@
+/**
+ * Classmates — HighlandAI
+ * © 2026 John McMillan (HighlandAI). All rights reserved.
+ * Licensed under CC BY-NC 4.0
+ * https://github.com/Johnobhoy88/classmates-v2
+ */
+
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase, type Teacher, type Pupil } from '../../data/supabase';
 import type { Session } from '@supabase/supabase-js';

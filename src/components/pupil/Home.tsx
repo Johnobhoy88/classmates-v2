@@ -1,3 +1,10 @@
+/**
+ * Classmates — HighlandAI
+ * © 2026 John McMillan (HighlandAI). All rights reserved.
+ * Licensed under CC BY-NC 4.0
+ * https://github.com/Johnobhoy88/classmates-v2
+ */
+
 import { useState, useEffect, lazy, Suspense, type ComponentType } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useProgress } from '../../hooks/useProgress';
