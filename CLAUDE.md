@@ -107,6 +107,48 @@ All tables have RLS policies. Schema in `supabase/migrations/001_initial.sql`.
 - Built for a real school (South Lodge Primary, Invergordon, Highland)
 - Target: Scottish primary schools that can't afford Sumdog (£600-900/year)
 - Competitive advantage: zero friction onboarding, privacy-first, free
-- Future direction: CfE curriculum mapping, parent-facing features, freemium (£30/year premium)
 - ~2,000 primary schools in Scotland, reachable via 32 local authorities
 - Key funding source for schools: Pupil Equity Fund (PEF), ~£1,225/eligible pupil
+
+## Competition (Scottish EdTech)
+
+- **Sumdog** (Edinburgh): Market leader, £600-900/year, CfE-aligned. Teachers say too complex.
+- **Purple Mash**: £450-950/year, CfE-mapped. Expensive for small schools.
+- **EducationCity**: Retired August 2025. Schools that used it need alternatives.
+- **Seesaw**: No free tier. School/district license only.
+- **Glow**: Free national platform but teachers mostly just use it for email.
+- **Our edge**: Zero friction, free, privacy-first, one tool covering many subjects.
+
+## Monetisation Strategy (Future)
+
+- **Phase 1 (now):** Free. Grow to 5-10 Highland schools via word-of-mouth.
+- **Phase 2 (traction):** Apply to Digital Xtra Fund for grant. Get listed on Glow. Add CfE mapping.
+- **Phase 3 (income):** Freemium — free for schools, parents pay £2-3/month for "Classmates Home" (progress reports, practice at home). OR £30/year premium per school (PDF reports, CfE exports, custom questions). Head teachers can approve from PEF without council procurement.
+
+## Next Phase: Game Engine Expansion
+
+Researched and planned (April 2026). The next evolution beyond quiz games:
+
+### Engines to Add
+- **LittleJS** (~10KB, MIT): Ultra-tiny pixel art engine. Add retro platformers with near-zero bundle impact.
+- **Kaplay.js** (~200KB, MIT): Easy 2D game framework for platformers/puzzle games. Works with Vite.
+- **GB Studio** (free, MIT): Visual Game Boy ROM maker. Create educational adventures, embed via Nostalgist.js. Kids play a real Game Boy game in the browser.
+- **Nostalgist.js** (MIT): Browser-based RetroArch emulator. Plays GB Studio ROMs in React.
+
+### Supabase Realtime (already in free tier)
+- **Broadcast**: Low-latency pub/sub for live classroom competitions (Kahoot-style)
+- **Presence**: Track who's online, who's ready to play
+- Upgrade Head to Head from local 2-player to class-wide live quiz
+- No new infrastructure needed — already included in Supabase
+
+### Supabase Limits to Watch
+- Free tier pauses after 7 days inactivity (summer holidays = risk). Pro is $25/month.
+- Edge Functions: 500K calls/month (enough if used sparingly)
+- Realtime: 200 concurrent connections, 2M messages/month (fine for 2-3 classes)
+- Storage: 1GB/2GB bandwidth (use Vercel CDN for static assets instead)
+
+### Build Priority
+1. **Live Classroom Quiz** — Supabase Realtime Broadcast + Presence (free, already available)
+2. **Kaplay.js Platformer** — spelling/maths platformer prototype
+3. **GB Studio Adventure** — "South Lodge Spelling Quest" as a Game Boy game
+4. **Phaser 4 upgrade** — same API, better performance, when stable
