@@ -43,6 +43,7 @@ export async function syncToSupabase(): Promise<{ synced: number; errors: number
       );
 
       if (error) {
+        console.warn('[sync] progress upsert failed:', record.id, error.message);
         errors++;
       } else {
         await db.progress.update(record.id, {
@@ -55,7 +56,7 @@ export async function syncToSupabase(): Promise<{ synced: number; errors: number
     // Sync rewards
     const unsyncedRewards = await db.rewards.toArray();
     for (const reward of unsyncedRewards) {
-      await supabase.from('rewards').upsert({
+      const { error } = await supabase.from('rewards').upsert({
         id: reward.id,
         pupil_id: reward.pupil_id,
         coins: reward.coins,
@@ -63,8 +64,13 @@ export async function syncToSupabase(): Promise<{ synced: number; errors: number
         equipped: reward.equipped,
         achievements: reward.achievements,
       });
+      if (error) {
+        console.warn('[sync] reward upsert failed:', reward.id, error.message);
+        errors++;
+      }
     }
-  } catch {
+  } catch (err) {
+    console.warn('[sync] unexpected error:', err);
     errors++;
   } finally {
     syncInProgress = false;

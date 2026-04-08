@@ -34,6 +34,7 @@ export function TypingQuiz({ onExit }: { onExit: () => void }) {
   const [done, setDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const savedRef = useRef(false);
 
   useEffect(() => {
     if (!started) return;
@@ -74,10 +75,19 @@ export function TypingQuiz({ onExit }: { onExit: () => void }) {
     );
   }
 
+  // Save result once when done
+  useEffect(() => {
+    if (done && pupil && !savedRef.current) {
+      savedRef.current = true;
+      const wpm = correct;
+      const stars = wpm >= 20 ? 3 : wpm >= 12 ? 2 : wpm >= 5 ? 1 : 0;
+      recordGameResult({ pupilId: pupil.id, gameId: 'typing', score: wpm, stars, streak: 0, bestStreak: wpm, correct: wpm, total: idx });
+    }
+  }, [done, pupil, correct, idx]);
+
   if (done) {
     const wpm = correct;
     const stars = wpm >= 20 ? 3 : wpm >= 12 ? 2 : wpm >= 5 ? 1 : 0;
-    if (pupil) recordGameResult({ pupilId: pupil.id, gameId: 'typing', score: wpm, stars, streak: 0, bestStreak: wpm, correct: wpm, total: idx });
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-slate-900 to-indigo-900/30">
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 max-w-md w-full text-center border border-white/20">
@@ -86,7 +96,7 @@ export function TypingQuiz({ onExit }: { onExit: () => void }) {
           <p className="text-indigo-300 text-2xl font-bold">{wpm} words per minute</p>
           <p className="text-white/40 text-sm mt-1">{correct}/{idx} correct</p>
           <div className="flex gap-3 mt-6">
-            <button onClick={() => { setIdx(0); setCorrect(0); setTimeLeft(60); setInput(''); setStarted(false); setDone(false); }}
+            <button onClick={() => { savedRef.current = false; setIdx(0); setCorrect(0); setTimeLeft(60); setInput(''); setStarted(false); setDone(false); }}
               className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-400 text-white font-bold rounded-xl">Again</button>
             <button onClick={onExit} className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20">Back</button>
           </div>

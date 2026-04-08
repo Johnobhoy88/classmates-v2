@@ -5,9 +5,11 @@
  * https://github.com/Johnobhoy88/classmates-v2
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { genMathQuestion } from '../../game/content/maths-data';
 import { sfxCorrect, sfxWrong, sfxLevelUp } from '../../game/systems/AudioSystem';
+import { recordGameResult } from '../../game/systems/ProgressTracker';
+import { useAuth } from '../auth/AuthProvider';
 
 // Faithful port of V1 Head to Head: 2-player split-screen maths race, first to 10
 
@@ -24,6 +26,7 @@ function newQuestion(): { text: string; answer: number } {
 }
 
 export function HeadToHead({ onExit }: { onExit: () => void }) {
+  const { pupil } = useAuth();
   const [started, setStarted] = useState(false);
   const [name1, setName1] = useState('');
   const [name2, setName2] = useState('');
@@ -33,8 +36,32 @@ export function HeadToHead({ onExit }: { onExit: () => void }) {
   const target = 10;
   const p1Ref = useRef<HTMLInputElement>(null);
   const p2Ref = useRef<HTMLInputElement>(null);
+  const savedRef = useRef(false);
+
+  // Save result once when winner is determined
+  useEffect(() => {
+    if (winner && pupil && !savedRef.current) {
+      savedRef.current = true;
+      const isP1 = winner === p1.name;
+      const winnerScore = isP1 ? p1.score : p2.score;
+      const totalAnswered = p1.score + p2.score;
+      const pct = totalAnswered > 0 ? winnerScore / target : 0;
+      const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+      recordGameResult({
+        pupilId: pupil.id,
+        gameId: 'h2h',
+        score: Math.round(pct * 100),
+        stars,
+        streak: 0,
+        bestStreak: Math.max(p1.score, p2.score),
+        correct: winnerScore,
+        total: target,
+      });
+    }
+  }, [winner, pupil, p1, p2]);
 
   function start() {
+    savedRef.current = false;
     const n1 = name1.trim() || 'Player 1';
     const n2 = name2.trim() || 'Player 2';
     setP1({ name: n1, score: 0, question: newQuestion(), input: '', flash: null });

@@ -9,6 +9,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { sfxCorrect, sfxWrong, sfxStreak, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { sanitizeHtml } from '../../utils/sanitize';
 
 // ============================================================
 // QUIZ ENGINE — Shared component for all Tier 1 Duolingo-style games
@@ -252,7 +253,7 @@ export function QuizEngine({ config, onExit }: QuizEngineProps) {
 
         {/* HTML display (SVG shapes, etc.) */}
         {q.displayHtml && (
-          <div className="mb-6 flex justify-center" dangerouslySetInnerHTML={{ __html: q.displayHtml }} />
+          <div className="mb-6 flex justify-center" dangerouslySetInnerHTML={{ __html: sanitizeHtml(q.displayHtml) }} />
         )}
 
         {/* Options */}

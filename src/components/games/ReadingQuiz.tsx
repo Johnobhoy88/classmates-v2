@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { READING, type ReadingLevel, type ReadingStory } from '../../game/content/reading-data';
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
 import { LevelSelect } from '../shared/LevelSelect';
+import { sanitizeHtml } from '../../utils/sanitize';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a;
@@ -48,7 +49,7 @@ export function ReadingQuiz({ onExit }: { onExit: () => void }) {
           <h2 className="text-xl font-bold text-emerald-300 mb-4">{story.title}</h2>
           <div
             className="text-white/80 text-sm leading-relaxed mb-8 bg-white/5 p-5 rounded-2xl border border-white/10"
-            dangerouslySetInnerHTML={{ __html: story.text }}
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(story.text) }}
           />
           <button
             onClick={() => setReadDone(true)}

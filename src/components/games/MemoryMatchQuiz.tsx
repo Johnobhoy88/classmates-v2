@@ -5,7 +5,7 @@
  * https://github.com/Johnobhoy88/classmates-v2
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { sfxCorrect, sfxWrong, sfxClick, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
@@ -39,6 +39,7 @@ export function MemoryMatchQuiz({ onExit }: { onExit: () => void }) {
   const [matched, setMatched] = useState(0);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const savedRef = useRef(false);
   const total = 8;
 
   const flipCard = useCallback((idx: number) => {
@@ -77,9 +78,17 @@ export function MemoryMatchQuiz({ onExit }: { onExit: () => void }) {
     }
   }, [busy, cards, flipped, matched]);
 
+  // Save result once when done
+  useEffect(() => {
+    if (done && pupil && !savedRef.current) {
+      savedRef.current = true;
+      const stars = moves <= 12 ? 3 : moves <= 18 ? 2 : 1;
+      recordGameResult({ pupilId: pupil.id, gameId: 'memorymatch', score: Math.max(0, 100 - moves * 3), stars, streak: 0, bestStreak: 0, correct: total, total });
+    }
+  }, [done, pupil, moves, total]);
+
   if (done) {
     const stars = moves <= 12 ? 3 : moves <= 18 ? 2 : 1;
-    if (pupil) recordGameResult({ pupilId: pupil.id, gameId: 'memorymatch', score: Math.max(0, 100 - moves * 3), stars, streak: 0, bestStreak: 0, correct: total, total });
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-slate-900 to-fuchsia-900/30">
         <div className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 max-w-md w-full text-center border border-white/20">

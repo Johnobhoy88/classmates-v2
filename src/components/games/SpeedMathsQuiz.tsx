@@ -27,6 +27,7 @@ export function SpeedMathsQuiz({ onExit }: { onExit: () => void }) {
   const [flash, setFlash] = useState<'correct' | 'wrong' | null>(null);
   const [finished, setFinished] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const savedRef = useRef(false);
 
   const loadQ = useCallback(() => {
     if (!level) return;
@@ -92,6 +93,17 @@ export function SpeedMathsQuiz({ onExit }: { onExit: () => void }) {
     }
   }
 
+  // Save result once when finished
+  useEffect(() => {
+    if (finished && pupil && level && !savedRef.current) {
+      savedRef.current = true;
+      const thresholds = { 1: 15, 2: 10, 3: 7 } as const;
+      const t = thresholds[level];
+      const stars = score >= t * 1.5 ? 3 : score >= t ? 2 : score >= Math.floor(t / 2) ? 1 : 0;
+      recordGameResult({ pupilId: pupil.id, gameId: 'speed', score, stars, streak: 0, bestStreak: maxCombo, correct: score, total: attempted });
+    }
+  }, [finished, pupil, level, score, maxCombo, attempted]);
+
   if (!level) return <LevelSelect title="Speed Maths" color="#0984e3" icon="60s" onSelect={(lv) => setLevel(lv as MathLevel)} onBack={onExit} />;
 
   // Results
@@ -99,10 +111,6 @@ export function SpeedMathsQuiz({ onExit }: { onExit: () => void }) {
     const thresholds = { 1: 15, 2: 10, 3: 7 } as const;
     const t = thresholds[level];
     const stars = score >= t * 1.5 ? 3 : score >= t ? 2 : score >= Math.floor(t / 2) ? 1 : 0;
-
-    if (pupil) {
-      recordGameResult({ pupilId: pupil.id, gameId: 'speed', score, stars, streak: 0, bestStreak: maxCombo, correct: score, total: attempted });
-    }
 
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-slate-900 to-blue-900/30">
@@ -113,7 +121,7 @@ export function SpeedMathsQuiz({ onExit }: { onExit: () => void }) {
           <p className="text-white/50 text-sm mb-1">{attempted} attempted</p>
           {maxCombo >= 3 && <p className="text-purple-300 text-sm mb-4">Best combo: {maxCombo >= 5 ? 'x3' : 'x2'} ({maxCombo} in a row)</p>}
           <div className="flex gap-3">
-            <button onClick={() => { setLevel(null); setTimeLeft(60); setScore(0); setAttempted(0); setCombo(0); setMaxCombo(0); setFinished(false); }}
+            <button onClick={() => { savedRef.current = false; setLevel(null); setTimeLeft(60); setScore(0); setAttempted(0); setCombo(0); setMaxCombo(0); setFinished(false); }}
               className="flex-1 py-3 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-xl">Play Again</button>
             <button onClick={onExit} className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20">Back</button>
           </div>
