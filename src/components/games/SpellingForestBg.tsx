@@ -95,21 +95,24 @@ export function SpellingForestBg({ state }: { state: ForestState }) {
       lastEvent.current = ev;
 
       if (ev === 'correct') {
-        // Fireflies swarm toward center, brief golden flash
+        // Fireflies gently drift toward word area, brief warm flash
         const cx = W / 2, cy = H * 0.35;
         for (const ff of fireflies) {
-          ff.targetX = cx + rand(-60, 60);
-          ff.targetY = cy + rand(-30, 30);
+          // Only nudge toward center, don't snap
+          ff.targetX = ff.baseX + (cx - ff.baseX) * 0.3 + rand(-30, 30);
+          ff.targetY = ff.baseY + (cy - ff.baseY) * 0.2 + rand(-20, 20);
+          ff.brightness = Math.min(1, ff.brightness + 0.2); // brighten
         }
-        brightnessFlash = 0.15;
+        brightnessFlash = 0.08;
         setTimeout(() => {
           for (const ff of fireflies) { ff.targetX = ff.baseX; ff.targetY = ff.baseY; }
-        }, 600);
+        }, 1200);
       } else if (ev === 'wrong') {
-        // Fireflies scatter outward, brief dim
+        // Fireflies gently drift apart, brief dim
         for (const ff of fireflies) {
-          ff.targetX = ff.baseX + rand(-80, 80);
-          ff.targetY = ff.baseY + rand(-60, 60);
+          ff.targetX = ff.baseX + rand(-40, 40);
+          ff.targetY = ff.baseY + rand(-30, 30);
+          ff.brightness = Math.max(0.15, ff.brightness - 0.15); // dim
         }
         brightnessFlash = -0.08;
         // Shake nearest tree
@@ -223,6 +226,54 @@ export function SpellingForestBg({ state }: { state: ForestState }) {
       }
     }
 
+    function drawHills() {
+      // Far rolling hills behind trees
+      const baseY = H * 0.82;
+      // Hill 1 — far, blue-green
+      ctx!.fillStyle = 'rgba(15,50,30,0.5)';
+      ctx!.beginPath();
+      ctx!.moveTo(0, baseY);
+      for (let x = 0; x <= W; x += 5) {
+        const y = baseY - 40 + Math.sin(x * 0.005 + 0.8) * 25 + Math.sin(x * 0.012) * 12;
+        ctx!.lineTo(x, y);
+      }
+      ctx!.lineTo(W, baseY); ctx!.closePath(); ctx!.fill();
+
+      // Hill 2 — mid, slightly brighter
+      ctx!.fillStyle = 'rgba(18,55,28,0.6)';
+      ctx!.beginPath();
+      ctx!.moveTo(0, baseY);
+      for (let x = 0; x <= W; x += 5) {
+        const y = baseY - 20 + Math.sin(x * 0.007 + 2) * 18 + Math.sin(x * 0.015) * 8;
+        ctx!.lineTo(x, y);
+      }
+      ctx!.lineTo(W, baseY); ctx!.closePath(); ctx!.fill();
+    }
+
+    function drawCastle() {
+      // Castle silhouette on distant hill
+      const cx = W * 0.2, baseY = H * 0.82 - 50;
+      ctx!.fillStyle = 'rgba(10,20,15,0.7)';
+      // Main keep
+      ctx!.fillRect(cx - 12, baseY - 35, 24, 35);
+      // Left tower
+      ctx!.fillRect(cx - 22, baseY - 45, 12, 45);
+      // Right tower
+      ctx!.fillRect(cx + 10, baseY - 42, 12, 42);
+      // Turrets (triangles on top)
+      ctx!.beginPath(); ctx!.moveTo(cx - 24, baseY - 45); ctx!.lineTo(cx - 16, baseY - 55); ctx!.lineTo(cx - 8, baseY - 45); ctx!.fill();
+      ctx!.beginPath(); ctx!.moveTo(cx + 8, baseY - 42); ctx!.lineTo(cx + 16, baseY - 52); ctx!.lineTo(cx + 24, baseY - 42); ctx!.fill();
+      // Battlements on main keep
+      for (let i = 0; i < 5; i++) {
+        ctx!.fillRect(cx - 12 + i * 6, baseY - 38, 4, 4);
+      }
+      // Window glow
+      ctx!.fillStyle = 'rgba(255,220,100,0.15)';
+      ctx!.fillRect(cx - 3, baseY - 25, 6, 8);
+      ctx!.fillRect(cx - 18, baseY - 35, 4, 5);
+      ctx!.fillRect(cx + 14, baseY - 32, 4, 5);
+    }
+
     function drawTrees(t: number) {
       const baseY = H * 0.82;
       for (const tr of trees) {
@@ -291,9 +342,9 @@ export function SpellingForestBg({ state }: { state: ForestState }) {
       }
 
       for (const ff of fireflies) {
-        // Move toward target (swarm behavior)
-        ff.x += (ff.targetX - ff.x) * 0.02 + Math.sin(t * 0.001 * ff.speed + ff.phase) * 1.5;
-        ff.y += (ff.targetY - ff.y) * 0.02 + Math.cos(t * 0.0008 * ff.speed + ff.phase) * 1;
+        // Gentle drift toward target
+        ff.x += (ff.targetX - ff.x) * 0.008 + Math.sin(t * 0.0006 * ff.speed + ff.phase) * 1.2;
+        ff.y += (ff.targetY - ff.y) * 0.008 + Math.cos(t * 0.0005 * ff.speed + ff.phase) * 0.8;
         ff.trail.push({ x: ff.x, y: ff.y, a: ff.brightness });
         if (ff.trail.length > 8) ff.trail.shift();
         for (let i = 0; i < ff.trail.length; i++) {
@@ -395,6 +446,8 @@ export function SpellingForestBg({ state }: { state: ForestState }) {
       drawStars(t);
       drawMoon();
       drawShootingStar();
+      drawHills();
+      drawCastle();
       drawMist(t);
       drawTrees(t);
       drawGround();

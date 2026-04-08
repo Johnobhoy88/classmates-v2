@@ -387,47 +387,40 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           </button>
         </div>
 
-        {/* Progress bar */}
-        <div className="px-4 pt-1 pb-2">
-          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
-            <motion.div className="h-full bg-emerald-400 rounded-full"
-              animate={{ width: `${(game.idx / game.total) * 100}%` }}
-              transition={{ duration: 0.3 }}
-            />
+        {/* Hearts + word count */}
+        <div className="flex justify-center items-center gap-3 pb-1">
+          <div className="flex gap-1.5">
+            {Array.from({ length: game.maxLives }, (_, i) => (
+              <motion.div key={i}
+                animate={i === game.lives ? { scale: [1, 1.5, 0.7, 1], opacity: [1, 1, 0.2, 0.2] } : {}}
+                transition={{ duration: 0.35 }}
+              >
+                <Heart className={`w-6 h-6 ${i < game.lives ? 'text-red-400 fill-red-400 drop-shadow-[0_0_4px_rgba(248,113,113,0.5)]' : 'text-white/15'}`} />
+              </motion.div>
+            ))}
           </div>
+          <span className="text-white/25 text-xs font-medium">{game.idx + 1}/{game.total}</span>
         </div>
 
-        {/* Hearts */}
-        <div className="flex justify-center gap-1.5 pb-2">
-          {Array.from({ length: game.maxLives }, (_, i) => (
-            <motion.div key={i}
-              animate={i === game.lives ? { scale: [1, 1.4, 0.8, 1], opacity: [1, 1, 0.3, 0.3] } : {}}
-              transition={{ duration: 0.3 }}
-            >
-              <Heart className={`w-5 h-5 ${i < game.lives ? 'text-red-400 fill-red-400' : 'text-white/15'}`} />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Emoji + Hint */}
-        <div className="text-center px-4 pt-2">
+        {/* Emoji + Hint — BIGGER */}
+        <div className="text-center px-6 pt-3 flex-shrink-0">
           <AnimatePresence mode="wait">
             <motion.div key={game.idx}
-              initial={{ opacity: 0, y: 15, scale: 0.9 }}
+              initial={{ opacity: 0, y: 20, scale: 0.85 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ type: 'spring', damping: 15 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 150 }}
             >
-              {emoji && <div className="text-5xl mb-2">{emoji}</div>}
-              <p className="text-white/60 text-sm italic">{game.words[game.idx].h}</p>
+              {emoji && <div className="text-7xl mb-3 drop-shadow-lg">{emoji}</div>}
+              <p className="text-white/80 text-lg font-medium leading-snug max-w-xs mx-auto">{game.words[game.idx].h}</p>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Letter slots */}
-        <div className="flex justify-center gap-1.5 sm:gap-2 px-4 pt-5 pb-3">
+        {/* Letter slots — BIGGER */}
+        <div className="flex justify-center gap-2 sm:gap-3 px-4 pt-6 pb-2">
           <AnimatePresence mode="wait">
-            <motion.div key={game.idx} className="flex gap-1.5 sm:gap-2"
+            <motion.div key={game.idx} className="flex gap-2 sm:gap-3"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             >
               {game.word.split('').map((ch, i) => {
@@ -437,15 +430,15 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
                   <motion.div key={`${game.idx}-${i}`}
                     initial={{ scale: 0, rotate: -10 }}
                     animate={shake && !revealed ? {
-                      x: [0, -4, 4, -4, 4, 0], scale: 1, rotate: 0,
+                      x: [0, -5, 5, -5, 5, 0], scale: 1, rotate: 0,
                     } : {
-                      scale: revealed ? [1, 1.15, 1] : 1, rotate: 0, x: 0,
+                      scale: revealed ? [1, 1.2, 1] : 1, rotate: 0, x: 0,
                     }}
-                    transition={revealed ? { type: 'spring', damping: 10, delay: i * 0.03 } : { delay: i * 0.04, type: 'spring', damping: 12 }}
-                    className={`w-10 h-12 sm:w-12 sm:h-14 rounded-xl flex items-center justify-center text-xl sm:text-2xl font-bold border-2 backdrop-blur-sm ${
+                    transition={revealed ? { type: 'spring', damping: 10, delay: i * 0.04 } : { delay: i * 0.05, type: 'spring', damping: 12 }}
+                    className={`w-12 h-14 sm:w-14 sm:h-16 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold border-2 backdrop-blur-sm ${
                       failed && revealed ? 'bg-red-500/30 border-red-400/50 text-red-200'
-                      : revealed ? 'bg-emerald-500/30 border-emerald-400/50 text-white shadow-[0_0_15px_rgba(46,204,113,0.3)]'
-                      : 'bg-white/5 border-white/15 text-transparent'
+                      : revealed ? 'bg-emerald-500/30 border-emerald-400/50 text-white shadow-[0_0_20px_rgba(46,204,113,0.4)]'
+                      : 'bg-white/8 border-white/20 text-transparent'
                     }`}
                   >
                     {revealed ? ch : '\u00A0'}
@@ -459,30 +452,30 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
         {/* Streak */}
         <AnimatePresence>
           {streakMsg && (
-            <motion.p initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="text-center text-amber-300 text-sm font-bold pb-2"
+            <motion.p initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+              className="text-center text-amber-300 text-base font-bold py-2 drop-shadow-lg"
             >{streakMsg}</motion.p>
           )}
         </AnimatePresence>
 
-        {/* Keyboard */}
-        <div className="mt-auto pb-6 px-2 sm:px-4">
+        {/* Keyboard — BIGGER */}
+        <div className="mt-auto pb-5 px-1 sm:px-3">
           {KEYBOARD_ROWS.map((row, ri) => (
-            <div key={ri} className="flex justify-center gap-1 sm:gap-1.5 mb-1.5">
+            <div key={ri} className="flex justify-center gap-[3px] sm:gap-1.5 mb-[5px] sm:mb-2">
               {row.split('').map(ch => {
                 const state = game.usedKeys.get(ch);
                 const disabled = !!state || game.wordState !== 'playing';
                 return (
                   <motion.button key={ch}
-                    whileHover={disabled ? {} : { scale: 1.1, y: -2 }}
-                    whileTap={disabled ? {} : { scale: 0.9 }}
-                    animate={state === 'wrong' ? { x: [0, -3, 3, -3, 0] } : {}}
+                    whileHover={disabled ? {} : { scale: 1.12, y: -3 }}
+                    whileTap={disabled ? {} : { scale: 0.88 }}
+                    animate={state === 'wrong' ? { x: [0, -4, 4, -4, 0] } : {}}
                     onClick={() => pressKey(ch)}
                     disabled={disabled}
-                    className={`w-[9vw] max-w-[36px] h-[12vw] max-h-[44px] rounded-lg sm:rounded-xl text-sm sm:text-base font-bold border transition-colors ${
-                      state === 'correct' ? 'bg-emerald-500/60 border-emerald-400/60 text-white shadow-[0_0_10px_rgba(46,204,113,0.3)]'
-                      : state === 'wrong' ? 'bg-red-500/40 border-red-400/40 text-red-300/60'
-                      : 'bg-white/8 border-white/12 text-white/80 hover:bg-white/15 hover:border-white/25 active:bg-white/20'
+                    className={`w-[8.5vw] max-w-[42px] h-[11vw] max-h-[52px] rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold border-2 transition-colors uppercase ${
+                      state === 'correct' ? 'bg-emerald-500/50 border-emerald-400/60 text-white shadow-[0_0_12px_rgba(46,204,113,0.4)]'
+                      : state === 'wrong' ? 'bg-red-500/30 border-red-400/40 text-red-300/50'
+                      : 'bg-white/10 border-white/15 text-white/90 hover:bg-white/18 hover:border-white/30 active:bg-white/25'
                     }`}
                   >
                     {ch}

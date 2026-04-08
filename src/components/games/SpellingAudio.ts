@@ -172,62 +172,89 @@ function playNote(freq: number, dur: number, type: OscillatorType = 'sine', vol 
   } catch {}
 }
 
-/** Correct letter — plays next note in ascending scale */
+/** Rich bell-like tone — fundamental + harmonics + soft decay */
+function playBell(freq: number, dur: number, vol = 0.15, delay = 0) {
+  try {
+    // Fundamental
+    playNote(freq, dur * 1.5, 'sine', vol, delay);
+    // 2nd harmonic (octave)
+    playNote(freq * 2, dur * 0.8, 'sine', vol * 0.3, delay);
+    // 3rd harmonic
+    playNote(freq * 3, dur * 0.5, 'sine', vol * 0.1, delay);
+    // Soft ping attack
+    playNote(freq * 4, dur * 0.15, 'sine', vol * 0.06, delay);
+    // Echo (delay effect)
+    playNote(freq, dur * 0.8, 'sine', vol * 0.12, delay + 0.12);
+    playNote(freq * 2, dur * 0.4, 'sine', vol * 0.05, delay + 0.15);
+  } catch {}
+}
+
+/** Play a chord (multiple frequencies simultaneously) */
+function playChord(freqs: number[], dur: number, vol = 0.12, delay = 0) {
+  for (const f of freqs) playBell(f, dur, vol / freqs.length, delay);
+}
+
+/** Correct letter — plays next bell note in ascending scale */
 export function sfxCorrectLetter() {
   const freq = currentScale[scaleIndex % currentScale.length];
-  // Play note + octave shimmer
-  playNote(freq, 0.12, 'sine', 0.18);
-  playNote(freq * 2, 0.08, 'sine', 0.04, 0.02);
+  playBell(freq, 0.3, 0.18);
   scaleIndex++;
 }
 
-/** Wrong letter — discordant note (tritone off current) */
+/** Wrong letter — discordant tone */
 export function sfxWrongLetter() {
   const baseFreq = currentScale[scaleIndex % currentScale.length];
-  playNote(baseFreq * 0.71, 0.15, 'triangle', 0.1); // tritone below
-  playNote(baseFreq * 0.5, 0.2, 'square', 0.05, 0.06);
+  playNote(baseFreq * 0.71, 0.2, 'triangle', 0.1);
+  playNote(baseFreq * 0.5, 0.25, 'triangle', 0.06, 0.08);
 }
 
-/** Word complete — resolve chord (I-III-V-I) */
+/** Word complete — rich chord resolution (I-III-V-I) with bells */
 export function sfxWordComplete() {
   const root = currentScale[0];
-  playNote(root, 0.15, 'sine', 0.18);
-  playNote(currentScale[2], 0.15, 'sine', 0.15, 0.08);
-  playNote(currentScale[4], 0.15, 'sine', 0.15, 0.16);
-  playNote(root * 2, 0.25, 'sine', 0.2, 0.24);
-  // Reset scale for next word
+  playBell(root, 0.3, 0.15);
+  playBell(currentScale[2], 0.3, 0.12, 0.1);
+  playBell(currentScale[4], 0.3, 0.12, 0.2);
+  playBell(root * 2, 0.5, 0.18, 0.3);
+  // Full chord ring
+  playChord([root * 2, currentScale[2] * 2, currentScale[4] * 2], 0.8, 0.15, 0.4);
   scaleIndex = 0;
 }
 
-/** Word failed — sad descending */
+/** Word failed — sad descending with reverb */
 export function sfxWordFailed() {
-  playNote(currentScale[2], 0.15, 'triangle', 0.12);
-  playNote(currentScale[0], 0.3, 'triangle', 0.1, 0.15);
+  playBell(currentScale[2], 0.4, 0.1);
+  playBell(currentScale[0], 0.6, 0.08, 0.2);
+  playNote(currentScale[0] * 0.5, 0.5, 'triangle', 0.03, 0.35);
   scaleIndex = 0;
 }
 
-/** Streak milestone — fast ascending arpeggio + shimmer */
+/** Streak milestone — fast ascending arpeggio with bells */
 export function sfxStreak() {
   for (let i = 0; i < currentScale.length; i++) {
-    playNote(currentScale[i], 0.06, 'sine', 0.12, i * 0.04);
+    playBell(currentScale[i], 0.2, 0.1, i * 0.05);
   }
-  playNote(currentScale[0] * 2, 0.3, 'sine', 0.15, currentScale.length * 0.04);
-  playNote(currentScale[0] * 4, 0.4, 'sine', 0.03, currentScale.length * 0.04); // shimmer
+  // Triumphant chord at top
+  const top = currentScale.length * 0.05;
+  playChord([currentScale[0] * 2, currentScale[2] * 2, currentScale[4] * 2], 0.6, 0.2, top);
+  // High shimmer
+  playNote(currentScale[0] * 4, 0.5, 'sine', 0.03, top);
 }
 
-/** Game complete — grand fanfare */
+/** Game complete — grand bell fanfare */
 export function sfxGameComplete() {
   const root = currentScale[0];
-  playNote(root, 0.12, 'sine', 0.2);
-  playNote(currentScale[2], 0.12, 'sine', 0.18, 0.1);
-  playNote(currentScale[4], 0.12, 'sine', 0.2, 0.2);
-  playNote(root * 2, 0.15, 'sine', 0.25, 0.3);
-  playNote(root * 2, 0.5, 'sine', 0.3, 0.42);
-  // Harmony
-  playNote(currentScale[2] * 2, 0.5, 'sine', 0.12, 0.42);
-  playNote(currentScale[4] * 2, 0.5, 'sine', 0.12, 0.42);
+  // Ascending bells
+  playBell(root, 0.3, 0.18);
+  playBell(currentScale[2], 0.3, 0.16, 0.12);
+  playBell(currentScale[4], 0.3, 0.18, 0.24);
+  playBell(root * 2, 0.4, 0.22, 0.36);
+  // Grand chord
+  playChord([root * 2, currentScale[2] * 2, currentScale[4] * 2, root * 4], 1.2, 0.25, 0.5);
+  // Bass note
+  playNote(root / 2, 1.5, 'sine', 0.08, 0.5);
   // Shimmer
-  playNote(root * 4, 0.6, 'sine', 0.04, 0.42);
+  playNote(root * 4, 0.8, 'sine', 0.04, 0.5);
+  playNote(root * 6, 0.6, 'sine', 0.02, 0.55);
 }
 
 /** Soft key press click */
