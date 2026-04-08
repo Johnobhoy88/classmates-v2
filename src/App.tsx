@@ -12,6 +12,8 @@ import { Dashboard } from './components/teacher/Dashboard';
 import { PupilHome } from './components/pupil/Home';
 import { OfflineBanner } from './components/shared/Layout';
 import { startAutoSync } from './data/sync';
+import { Toaster } from 'sonner';
+import { AnimatePresence, motion } from 'motion/react';
 
 function AppRoutes() {
   const { teacher, pupil, loading } = useAuth();
@@ -43,10 +45,22 @@ function AppRoutes() {
     );
   }
 
+  const view = pupil ? 'pupil' : teacher ? 'teacher' : 'landing';
+
   return (
     <>
       {!online && <OfflineBanner />}
-      {pupil ? <PupilHome /> : teacher ? <Dashboard /> : <Landing />}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={view}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {pupil ? <PupilHome /> : teacher ? <Dashboard /> : <Landing />}
+        </motion.div>
+      </AnimatePresence>
     </>
   );
 }
@@ -55,6 +69,7 @@ export default function App() {
   return (
     <AuthProvider>
       <AppRoutes />
+      <Toaster position="top-center" richColors closeButton />
     </AuthProvider>
   );
 }
