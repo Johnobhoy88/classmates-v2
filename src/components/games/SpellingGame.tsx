@@ -20,10 +20,11 @@ import { shuffle } from '../../utils/shuffle';
 import { SpellingForestBg } from './SpellingForestBg';
 import { GameBackButton } from '../shared/GameNav';
 import {
-  startAmbient, stopAmbient,
+  startAmbient, stopAmbient, updateAmbientState, resetScale,
   sfxCorrectLetter, sfxWrongLetter, sfxWordComplete, sfxWordFailed,
   sfxStreak, sfxGameComplete, sfxKeyPress, sfxHeartLost,
 } from './SpellingAudio';
+import type { ForestState } from './SpellingForestBg';
 
 const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const LEVELS = [
@@ -62,12 +63,36 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
   const [shake, setShake] = useState(false);
   const [confetti, setConfetti] = useState<Array<{ id: number; x: number; color: string }>>([]);
   const [audioOn, setAudioOn] = useState(true);
+  const [forestEvent, setForestEvent] = useState<ForestState['event']>('none');
   const savedRef = useRef(false);
   const confettiId = useRef(0);
 
+  // Compute forest state from game state
+  const forestState: ForestState = game ? {
+    progress: game.idx / game.total,
+    streak: game.streak,
+    livesRatio: game.lives / game.maxLives,
+    event: forestEvent,
+  } : { progress: 0, streak: 0, livesRatio: 1, event: 'none' };
+
+  // Clear forest event after a frame so it only fires once
+  useEffect(() => {
+    if (forestEvent !== 'none') {
+      const t = setTimeout(() => setForestEvent('none'), 50);
+      return () => clearTimeout(t);
+    }
+  }, [forestEvent]);
+
+  // Update ambient audio reactively
+  useEffect(() => {
+    if (game && audioOn) {
+      updateAmbientState(game.lives / game.maxLives, game.streak);
+    }
+  }, [game?.lives, game?.streak, audioOn]);
+
   // Start ambient on level select
   useEffect(() => {
-    if (level && audioOn) startAmbient();
+    if (level && audioOn) startAmbient(level);
     return () => stopAmbient();
   }, [level, audioOn]);
 
@@ -111,12 +136,14 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
 
     if (found) {
       if (audioOn) sfxCorrectLetter();
+      setForestEvent('correct');
       const allRevealed = newRevealed.every(Boolean);
       if (allRevealed) {
         // Word complete!
         const newCorrect = game.correct + 1;
         const newStreak = game.streak + 1;
         const newBestStreak = Math.max(game.bestStreak, newStreak);
+        setForestEvent('wordComplete');
         if (audioOn) {
           if (newStreak >= 5) sfxStreak();
           else sfxWordComplete();
@@ -141,6 +168,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     } else {
       // Wrong letter
       if (audioOn) sfxWrongLetter();
+      setForestEvent('wrong');
       const newLives = game.lives - 1;
       if (audioOn) sfxHeartLost();
       setShake(true);
@@ -149,6 +177,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
       if (newLives <= 0) {
         // Word failed
         if (audioOn) sfxWordFailed();
+        setForestEvent('wordFailed');
         const newMissed = [...game.missed, { w: game.word, h: game.words[game.idx].h }];
         setGame(g => g ? {
           ...g, usedKeys: newUsed, lives: 0, streak: 0, missed: newMissed,
@@ -181,10 +210,12 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           // Game over
           const pct = game.correct / game.total;
           const stars = calcStars(pct);
+          setForestEvent('gameComplete');
           if (audioOn) sfxGameComplete();
           setResult({ correct: game.correct, total: game.total, stars, bestStreak: game.bestStreak, missed: game.missed });
         } else {
           const w = game.words[nextIdx].w.toLowerCase();
+          resetScale();
           setGame(g => g ? {
             ...g, idx: nextIdx, word: w,
             revealed: new Array(w.length).fill(false),
@@ -215,7 +246,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
   if (!level || (!game && !result)) {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <SpellingForestBg />
+        <SpellingForestBg state={forestState} />
         <div className="relative z-10 min-h-screen flex flex-col">
           <div className="px-4 pt-4 flex items-center justify-between">
             <GameBackButton onClick={onExit} />
@@ -260,7 +291,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     const pct = Math.round((result.correct / result.total) * 100);
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <SpellingForestBg />
+        <SpellingForestBg state={forestState} />
         <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
           <motion.div initial={{ opacity: 0, scale: 0.8, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ type: 'spring', damping: 15 }}
@@ -324,7 +355,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <SpellingForestBg />
+      <SpellingForestBg state={forestState} />
 
       {/* Confetti layer */}
       <div className="fixed inset-0 z-20 pointer-events-none">
