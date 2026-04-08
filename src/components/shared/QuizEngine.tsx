@@ -12,6 +12,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { sanitizeHtml } from '../../utils/sanitize';
 import { shuffle } from '../../utils/shuffle';
 import { calcStars } from '../../utils/stars';
+import { GameBackButton, streakMessage } from './GameNav';
 
 // ============================================================
 // QUIZ ENGINE — Shared component for all Tier 1 Duolingo-style games
@@ -210,9 +211,7 @@ export function QuizEngine({ config, onExit }: QuizEngineProps) {
     <div className="min-h-screen flex flex-col" style={{ background: `linear-gradient(to bottom, #0f172a, ${config.color}15)` }}>
       {/* Top bar */}
       <div className="px-4 pt-4 flex items-center justify-between">
-        <button onClick={onExit} className="text-white/40 hover:text-white/70 text-sm font-semibold px-3 py-2 rounded-lg hover:bg-white/5">
-          &larr; Back
-        </button>
+        <GameBackButton onClick={onExit} />
         <span className="text-white/30 text-sm">{idx + 1}/{total}</span>
       </div>
 
@@ -227,7 +226,7 @@ export function QuizEngine({ config, onExit }: QuizEngineProps) {
       {streak >= 2 && (
         <div className="text-center mb-2">
           <span className="text-amber-300 text-sm font-bold animate-pulse">
-            {streak >= 5 ? `\u{1F525}\u{1F525} ${streak}!` : streak >= 3 ? `\u{1F525} ${streak} in a row!` : `\u2B50 ${streak} streak`}
+            {streakMessage(streak)}
           </span>
         </div>
       )}

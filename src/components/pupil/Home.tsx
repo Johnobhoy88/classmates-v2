@@ -10,6 +10,7 @@ import { useAuth } from '../auth/AuthProvider';
 import { useProgress } from '../../hooks/useProgress';
 import { motion } from 'motion/react';
 import { Star, Gamepad2, Coins, BookOpen, Volume2, Type, PenTool, Music, CircleDot, TextCursorInput, Shuffle, ListOrdered, BookOpenText, Calculator, Link, Grid3X3, PieChart, PoundSterling, Clock, Layers, HelpCircle, Triangle, Ruler, FileQuestion, Zap, BarChart3, TrendingUp, Landmark, Globe, CloudSun, Compass, Flag, MapPin, Brain, Bug, Keyboard, CalendarDays, Swords, Car } from 'lucide-react';
+import { GameLoading } from '../shared/GameNav';
 
 // Lazy-load ALL game components for code splitting
 const GameShell = lazy(() => import('../shared/GameShell').then(m => ({ default: m.GameShell })));
@@ -66,13 +67,7 @@ function GeoQuizLazy({ variant, onExit }: { variant: string; onExit: () => void 
   return C ? <C onExit={onExit} /> : null;
 }
 
-function GameLoading() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-900">
-      <div className="text-white text-lg font-bold animate-pulse">Loading game...</div>
-    </div>
-  );
-}
+// GameLoading imported from shared/GameNav
 
 // Phaser games
 const PHASER_GAMES = new Set(['spelling']);
