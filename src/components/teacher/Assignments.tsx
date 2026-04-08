@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase, type Assignment } from '../../data/supabase';
+import { toast } from 'sonner';
+import { Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 
 const GAME_OPTIONS = [
   { id: 'spelling', label: 'Spelling' },
@@ -45,13 +47,18 @@ export function Assignments({ teacherId }: { teacherId: string }) {
     e.preventDefault();
     if (!gameId) return;
 
-    await supabase.from('assignments').insert({
+    const { error } = await supabase.from('assignments').insert({
       teacher_id: teacherId,
       game_id: gameId,
       message: message.trim() || null,
       active: true,
     });
 
+    if (!error) {
+      toast.success('Assignment created');
+    } else {
+      toast.error('Failed to create assignment');
+    }
     setGameId('');
     setMessage('');
     loadAssignments();
@@ -67,7 +74,9 @@ export function Assignments({ teacherId }: { teacherId: string }) {
 
   async function deleteAssignment(id: string) {
     if (!confirm('Delete this assignment?')) return;
-    await supabase.from('assignments').delete().eq('id', id);
+    const { error } = await supabase.from('assignments').delete().eq('id', id);
+    if (!error) toast.success('Assignment deleted');
+    else toast.error('Failed to delete');
     loadAssignments();
   }
 
@@ -94,8 +103,9 @@ export function Assignments({ teacherId }: { teacherId: string }) {
           <button
             type="submit"
             disabled={!gameId}
-            className="px-6 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-colors"
+            className="px-6 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 disabled:opacity-50 transition-colors flex items-center gap-2"
           >
+            <Plus className="w-4 h-4" />
             Assign
           </button>
         </div>
@@ -136,18 +146,19 @@ export function Assignments({ teacherId }: { teacherId: string }) {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => toggleActive(a.id, a.active)}
-                  className={`text-xs px-3 py-1.5 rounded-full font-semibold transition-colors ${
+                  className={`text-xs px-3 py-1.5 rounded-full font-semibold transition-colors flex items-center gap-1 ${
                     a.active
                       ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       : 'bg-teal-100 text-teal-700 hover:bg-teal-200'
                   }`}
                 >
-                  {a.active ? 'Deactivate' : 'Activate'}
+                  {a.active ? <><ToggleRight className="w-3.5 h-3.5" /> Deactivate</> : <><ToggleLeft className="w-3.5 h-3.5" /> Activate</>}
                 </button>
                 <button
                   onClick={() => deleteAssignment(a.id)}
-                  className="text-xs text-red-400 hover:text-red-600 px-2 py-1.5 rounded-full hover:bg-red-50"
+                  className="text-xs text-red-400 hover:text-red-600 px-2 py-1.5 rounded-full hover:bg-red-50 flex items-center gap-1"
                 >
+                  <Trash2 className="w-3 h-3" />
                   Delete
                 </button>
               </div>

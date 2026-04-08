@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase, type Pupil } from '../../data/supabase';
+import { toast } from 'sonner';
+import { UserPlus, Trash2 } from 'lucide-react';
 
 function generatePin(): string {
   return String(Math.floor(1000 + Math.random() * 9000));
@@ -53,13 +55,21 @@ export function Roster({ teacherId }: { teacherId: string }) {
 
     if (!error) {
       setNewName('');
+      toast.success(`${name} added with PIN ${pin}`);
       loadPupils();
+    } else {
+      toast.error('Failed to add pupil');
     }
   }
 
   async function removePupil(id: string, name: string) {
     if (!confirm(`Remove ${name}? This will delete their progress.`)) return;
-    await supabase.from('pupils').delete().eq('id', id);
+    const { error } = await supabase.from('pupils').delete().eq('id', id);
+    if (!error) {
+      toast.success(`${name} removed`);
+    } else {
+      toast.error('Failed to remove pupil');
+    }
     loadPupils();
   }
 
@@ -80,8 +90,9 @@ export function Roster({ teacherId }: { teacherId: string }) {
         />
         <button
           type="submit"
-          className="px-6 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors"
+          className="px-6 py-3 bg-teal-600 text-white font-bold rounded-xl hover:bg-teal-700 transition-colors flex items-center gap-2"
         >
+          <UserPlus className="w-4 h-4" />
           Add
         </button>
       </form>
@@ -112,8 +123,9 @@ export function Roster({ teacherId }: { teacherId: string }) {
               </div>
               <button
                 onClick={() => removePupil(pupil.id, pupil.display_name)}
-                className="text-xs text-red-400 hover:text-red-600 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors"
+                className="text-xs text-red-400 hover:text-red-600 px-3 py-1 rounded-lg hover:bg-red-50 transition-colors flex items-center gap-1"
               >
+                <Trash2 className="w-3 h-3" />
                 Remove
               </button>
             </div>
