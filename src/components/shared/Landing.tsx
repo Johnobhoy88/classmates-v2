@@ -111,14 +111,14 @@ export function Landing() {
         </div>
       </div>
 
-      <footer className="absolute bottom-4 left-0 right-0 text-center relative z-10">
-        <p className="text-xs drop-shadow-sm" style={{ color: '#2e7d32aa' }}>
-          Free. No tracking. No ads. Built for our school.
+      <div className="fixed bottom-3 right-4 z-10 text-right">
+        <p className="text-xs font-medium text-white/80 drop-shadow-md">
+          Free. No tracking. No ads.
         </p>
-        <p className="text-xs mt-1 drop-shadow-sm" style={{ color: '#2e7d3280' }}>
+        <p className="text-xs font-medium text-white/70 drop-shadow-md">
           &copy; 2026 HighlandAI &middot; CC BY-NC 4.0
         </p>
-      </footer>
+      </div>
     </div>
   );
 }
