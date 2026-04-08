@@ -7,6 +7,8 @@
 
 import { useEffect, useState } from 'react';
 import { supabase, type Pupil, type Progress as ProgressRecord } from '../../data/supabase';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { Star, Gamepad2, Users, TrendingUp } from 'lucide-react';
 
 interface PupilWithProgress {
   pupil: Pupil;
@@ -112,20 +114,45 @@ export function Progress({ teacherId }: { teacherId: string }) {
       {/* Class summary cards */}
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+          <Star className="w-5 h-5 text-amber-400 mx-auto mb-1" />
           <p className="text-2xl font-bold text-gray-900">{data.reduce((s, d) => s + d.totalStars, 0)}</p>
           <p className="text-xs text-gray-500 font-semibold">Total Stars</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+          <Gamepad2 className="w-5 h-5 text-teal-500 mx-auto mb-1" />
           <p className="text-2xl font-bold text-gray-900">{data.reduce((s, d) => s + d.totalGames, 0)}</p>
           <p className="text-xs text-gray-500 font-semibold">Games Played</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+          <Users className="w-5 h-5 text-emerald-500 mx-auto mb-1" />
           <p className="text-2xl font-bold text-gray-900">
             {data.filter((d) => d.lastActive && new Date(d.lastActive).toDateString() === new Date().toDateString()).length}
           </p>
           <p className="text-xs text-gray-500 font-semibold">Active Today</p>
         </div>
       </div>
+
+      {/* Stars by pupil chart */}
+      {data.length > 0 && data.some(d => d.totalStars > 0) && (
+        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-teal-600" />
+            Stars by Pupil
+          </h3>
+          <ResponsiveContainer width="100%" height={Math.max(200, data.length * 36)}>
+            <BarChart data={data.map(d => ({ name: d.pupil.display_name, stars: d.totalStars, games: d.totalGames })).sort((a, b) => b.stars - a.stars)} layout="vertical" margin={{ left: 0, right: 20 }}>
+              <XAxis type="number" tick={{ fontSize: 12 }} />
+              <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 12 }} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #e5e7eb', fontSize: 13 }} />
+              <Bar dataKey="stars" name="Stars" radius={[0, 6, 6, 0]} maxBarSize={24}>
+                {data.map((_, i) => (
+                  <Cell key={i} fill={['#f59e0b', '#10b981', '#0ea5e9', '#8b5cf6', '#ec4899', '#f97316'][i % 6]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       {/* Pupil progress table */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
