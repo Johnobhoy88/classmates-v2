@@ -8,14 +8,16 @@
 import { useState } from 'react';
 import { TeacherLogin } from '../auth/TeacherLogin';
 import { PupilLogin } from '../auth/PupilLogin';
+import { LandingScene } from './LandingScene';
 
 export function Landing() {
   const [mode, setMode] = useState<'select' | 'teacher' | 'pupil'>('select');
 
   if (mode === 'teacher') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-teal-900 to-teal-700">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+      <div className="min-h-screen flex flex-col items-center justify-center relative">
+        <LandingScene />
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 relative z-10">
           <TeacherLogin />
           <div className="text-center pb-6">
             <button
@@ -32,8 +34,9 @@ export function Landing() {
 
   if (mode === 'pupil') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-emerald-800 to-emerald-600">
-        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+      <div className="min-h-screen flex flex-col items-center justify-center relative">
+        <LandingScene />
+        <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 relative z-10">
           <PupilLogin />
           <div className="text-center pb-6">
             <button
@@ -49,20 +52,22 @@ export function Landing() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-teal-900 to-emerald-900 text-white">
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-extrabold tracking-tight mb-3">
+    <div className="min-h-screen flex flex-col items-center justify-center text-white relative">
+      <LandingScene />
+
+      <div className="text-center mb-12 relative z-10">
+        <h1 className="text-5xl font-extrabold tracking-tight mb-3 drop-shadow-lg">
           Classmates
         </h1>
-        <p className="text-lg text-teal-200 font-medium">
+        <p className="text-lg font-medium drop-shadow-md" style={{ color: '#1a5c2e' }}>
           South Lodge Primary, Invergordon
         </p>
-        <p className="text-sm text-teal-300/60 mt-1">
+        <p className="text-sm mt-1 drop-shadow-sm" style={{ color: '#2e7d32' }}>
           Learning that feels like play
         </p>
       </div>
 
-      <div className="flex flex-col gap-4 w-full max-w-xs">
+      <div className="flex flex-col gap-4 w-full max-w-xs relative z-10">
         <button
           onClick={() => setMode('pupil')}
           className="px-8 py-5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl text-xl transition-all hover:scale-[1.02] shadow-lg shadow-emerald-500/30"
@@ -71,13 +76,13 @@ export function Landing() {
         </button>
         <button
           onClick={() => setMode('teacher')}
-          className="px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-2xl text-lg transition-all border border-white/20"
+          className="px-8 py-4 bg-white/80 hover:bg-white text-emerald-800 font-semibold rounded-2xl text-lg transition-all border border-white/40 shadow-md"
         >
           Teacher Sign In
         </button>
       </div>
 
-      <p className="mt-12 text-xs text-teal-300/40">
+      <p className="mt-12 text-xs relative z-10 drop-shadow-sm" style={{ color: '#2e7d32aa' }}>
         Free. No tracking. No ads. Built for our school.
       </p>
     </div>
