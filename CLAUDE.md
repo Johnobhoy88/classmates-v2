@@ -53,7 +53,8 @@ src/
 │   ├── content/               # 15 data files (~1,700 lines of curriculum content)
 │   ├── scenes/SpellingScene.ts # Phaser spelling game (404 lines)
 │   └── systems/               # ProgressTracker, AudioSystem
-└── hooks/                     # useAuth, useOffline, useProgress
+├── hooks/                     # useAuth, useOffline, useProgress
+└── utils/                     # shuffle, stars, sanitize (shared utilities)
 ```
 
 ## Architecture Patterns
@@ -89,15 +90,17 @@ All tables have RLS policies. Schema in `supabase/migrations/001_initial.sql`.
 
 ## Infrastructure Status
 
-- **Supabase:** Schema designed, migration file ready. Needs: create project, run migration, set env vars
-- **Vercel:** vercel.json configured. Needs: connect repo, add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
-- **Env vars:** .env.example has placeholders. Real creds go in Vercel env vars, not committed
+- **Supabase:** LIVE — project `mtlzmeyppmumbsjhsagq` (eu-west-2), PostgreSQL 17.6, all 5 tables with RLS, migration applied
+- **Vercel:** LIVE — project `classmates-v2` linked and deploying from master
+- **Env vars:** .env has VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY. Vercel env vars configured.
+- **Auth:** Supabase magic link (teachers), class code + 4-digit PIN (pupils)
 
 ## Coding Conventions
 
 - Commit style: imperative, descriptive (e.g. "Fix all TypeScript strict errors for Vercel production build")
 - No stubs or placeholders — every file is real, functional code
 - Games use QuizEngine where possible; standalone React state for interactive games
+- Shared utilities in src/utils/ — use shuffle(), calcStars(), sanitizeHtml() instead of inlining
 - Content data in src/game/content/, procedural generation for maths/fractions/sequences
 - Copyright header on every .ts/.tsx file (HighlandAI, CC BY-NC 4.0)
 - Do not add features beyond what's asked. Keep it simple.
