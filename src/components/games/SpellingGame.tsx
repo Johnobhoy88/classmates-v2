@@ -11,29 +11,29 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, Zap, Trophy, ArrowLeft, Heart, Volume2, VolumeX } from 'lucide-react';
-import * as AlertDialog from '@radix-ui/react-alert-dialog';
-import * as Tooltip from '@radix-ui/react-tooltip';
+import { Star, Zap, Trophy } from 'lucide-react';
 import { toast } from 'sonner';
+// Radix/Tooltip now in shared GameHeader
 import { SPELLING, WORD_EMOJI, type SpellingWord, type SpellingLevel } from '../../game/content/spelling-data';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { calcStars } from '../../utils/stars';
 import { shuffle } from '../../utils/shuffle';
 import { SpellingForestBg } from './SpellingForestBg';
-import { GameBackButton } from '../shared/GameNav';
 import {
   startAmbient, stopAmbient, updateAmbientState, resetScale,
   sfxCorrectLetter, sfxWrongLetter, sfxWordComplete, sfxWordFailed,
   sfxStreak, sfxGameComplete, sfxKeyPress, sfxHeartLost,
 } from './SpellingAudio';
 import type { ForestState } from './SpellingForestBg';
+import { GameHeader, ResultsScreen, PremiumLevelSelect, useConfetti, ConfettiLayer } from '../premium';
+import type { LevelDef, GameResult } from '../premium';
 
 const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
-const LEVELS = [
-  { level: 1 as SpellingLevel, label: 'Easy', desc: '3-letter words', icon: Star, color: 'from-emerald-500 to-teal-600', lives: 7 },
-  { level: 2 as SpellingLevel, label: 'Medium', desc: '4-6 letter words', icon: Zap, color: 'from-blue-500 to-indigo-600', lives: 6 },
-  { level: 3 as SpellingLevel, label: 'Hard', desc: 'Big words!', icon: Trophy, color: 'from-purple-500 to-pink-600', lives: 5 },
+const LEVELS: LevelDef[] = [
+  { level: 1, label: 'Easy', desc: '3-letter words', icon: Star, color: 'from-emerald-500 to-teal-600', lives: 7 },
+  { level: 2, label: 'Medium', desc: '4-6 letter words', icon: Zap, color: 'from-blue-500 to-indigo-600', lives: 6 },
+  { level: 3, label: 'Hard', desc: 'Big words!', icon: Trophy, color: 'from-purple-500 to-pink-600', lives: 5 },
 ];
 
 interface GameState {
@@ -62,13 +62,12 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
   const { pupil } = useAuth();
   const [level, setLevel] = useState<SpellingLevel | null>(null);
   const [game, setGame] = useState<GameState | null>(null);
-  const [result, setResult] = useState<{ correct: number; total: number; stars: number; bestStreak: number; missed: Array<{ w: string; h: string }> } | null>(null);
+  const [result, setResult] = useState<GameResult | null>(null);
   const [shake, setShake] = useState(false);
-  const [confetti, setConfetti] = useState<Array<{ id: number; x: number; color: string }>>([]);
   const [audioOn, setAudioOn] = useState(true);
   const [forestEvent, setForestEvent] = useState<ForestState['event']>('none');
   const savedRef = useRef(false);
-  const confettiId = useRef(0);
+  const { pieces: confetti, burst: burstConfetti } = useConfetti();
 
   // Compute forest state from game state
   const forestState: ForestState = game ? {
@@ -98,6 +97,13 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     if (level && audioOn) startAmbient(level);
     return () => stopAmbient();
   }, [level, audioOn]);
+
+  const toggleAudio = useCallback(() => {
+    setAudioOn(prev => {
+      if (prev) stopAmbient(); else if (level) startAmbient(level);
+      return !prev;
+    });
+  }, [level]);
 
   const startGame = useCallback((lv: SpellingLevel) => {
     const lvData = LEVELS.find(l => l.level === lv)!;
@@ -157,14 +163,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           if (newStreak >= 5) sfxStreak();
           else sfxWordComplete();
         }
-        // Confetti burst
-        const burst = Array.from({ length: 20 }, () => ({
-          id: confettiId.current++,
-          x: 30 + Math.random() * 40,
-          color: ['#2ecc71', '#f1c40f', '#3498db', '#e74c3c', '#9b59b6', '#1abc9c'][Math.floor(Math.random() * 6)],
-        }));
-        setConfetti(burst);
-        setTimeout(() => setConfetti([]), 1200);
+        burstConfetti();
 
         setGame(g => g ? {
           ...g, revealed: newRevealed, usedKeys: newUsed,
@@ -256,100 +255,32 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     return (
       <div className="min-h-screen relative overflow-hidden">
         <SpellingForestBg state={forestState} />
-        <div className="relative z-10 min-h-screen flex flex-col">
-          <div className="px-4 pt-4 flex items-center justify-between">
-            <GameBackButton onClick={onExit} />
-            <button onClick={() => setAudioOn(!audioOn)} className="text-white/40 hover:text-white/70 p-2">
-              {audioOn ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
-            </button>
-          </div>
-          <div className="flex-1 flex flex-col items-center justify-center px-4">
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-8">
-              <div className="text-6xl mb-3">&#x2728;</div>
-              <h2 className="text-3xl font-extrabold text-white mb-2 drop-shadow-lg">Spellbound Forest</h2>
-              <p className="text-emerald-300/60 text-sm">Guess the word from the clue!</p>
-            </motion.div>
-            <div className="flex flex-col gap-4 w-full max-w-xs">
-              {LEVELS.map((lv, i) => {
-                const Icon = lv.icon;
-                return (
-                  <motion.button key={lv.level}
-                    initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.1 }}
-                    whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                    onClick={() => startGame(lv.level)}
-                    className={`flex items-center gap-4 px-6 py-5 bg-gradient-to-r ${lv.color} rounded-2xl text-white shadow-lg`}
-                  >
-                    <Icon className="w-7 h-7 flex-shrink-0" />
-                    <div className="text-left">
-                      <p className="font-bold text-lg">{lv.label}</p>
-                      <p className="text-white/70 text-sm">{lv.desc} &middot; {lv.lives} lives</p>
-                    </div>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+        <PremiumLevelSelect
+          title="Spellbound Forest"
+          subtitle="Guess the word from the clue!"
+          icon={<span className="text-6xl">&#x2728;</span>}
+          levels={LEVELS}
+          audioOn={audioOn}
+          onToggleAudio={toggleAudio}
+          onSelect={(lv) => startGame(lv as SpellingLevel)}
+          onExit={onExit}
+        />
       </div>
     );
   }
 
   // === RESULTS ===
   if (result) {
-    const pct = Math.round((result.correct / result.total) * 100);
+    // Add emoji to missed items for display
+    const missedWithEmoji = result.missed.map(m => ({ ...m, emoji: getEmoji(m.w) }));
     return (
       <div className="min-h-screen relative overflow-hidden">
         <SpellingForestBg state={forestState} />
-        <div className="relative z-10 min-h-screen flex flex-col items-center justify-center px-4">
-          <motion.div initial={{ opacity: 0, scale: 0.8, y: 30 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ type: 'spring', damping: 15 }}
-            className="bg-black/40 backdrop-blur-xl rounded-3xl p-8 max-w-md w-full text-center border border-white/10"
-          >
-            <div className="flex justify-center gap-2 mb-4">
-              {[1, 2, 3].map(s => (
-                <motion.div key={s} initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 0.2 + s * 0.15, type: 'spring', damping: 8 }}
-                >
-                  <Star className={`w-10 h-10 ${s <= result.stars ? 'text-amber-400 fill-amber-400' : 'text-white/20'}`} />
-                </motion.div>
-              ))}
-            </div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              {result.stars >= 3 ? 'Amazing!' : result.stars >= 2 ? 'Great job!' : result.stars >= 1 ? 'Good try!' : 'Keep practising!'}
-            </h2>
-            <p className="text-emerald-300 text-lg mb-1">{result.correct}/{result.total} correct ({pct}%)</p>
-            {result.bestStreak >= 3 && (
-              <p className="text-amber-300 text-sm mb-4">{result.bestStreak} words in a row!</p>
-            )}
-            {result.missed.length > 0 && (
-              <div className="text-left mb-6 mt-4">
-                <p className="text-white/50 text-xs font-semibold mb-2">Words to practise:</p>
-                {result.missed.map((m, i) => (
-                  <motion.div key={i} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 + i * 0.05 }}
-                    className="flex items-center gap-3 bg-white/5 rounded-xl px-4 py-2.5 mb-2 border border-white/10"
-                  >
-                    <span className="text-xl">{getEmoji(m.w)}</span>
-                    <div>
-                      <span className="text-white font-bold capitalize">{m.w}</span>
-                      <span className="text-white/40 text-sm ml-2">— {m.h}</span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-            <div className="flex gap-3 mt-4">
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => { setGame(null); setResult(null); setLevel(null); }}
-                className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl"
-              >Play Again</motion.button>
-              <motion.button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}
-                onClick={() => { stopAmbient(); onExit(); }}
-                className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20"
-              >Back</motion.button>
-            </div>
-          </motion.div>
-        </div>
+        <ResultsScreen
+          result={{ ...result, missed: missedWithEmoji }}
+          onPlayAgain={() => { setGame(null); setResult(null); setLevel(null); }}
+          onExit={() => { stopAmbient(); onExit(); }}
+        />
       </div>
     );
   }
@@ -367,90 +298,16 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     <div className="min-h-screen relative overflow-hidden">
       <SpellingForestBg state={forestState} />
 
-      {/* Confetti — falls from top */}
-      <div className="fixed inset-0 z-20 pointer-events-none overflow-hidden">
-        <AnimatePresence>
-          {confetti.map(c => (
-            <motion.div key={c.id}
-              initial={{ y: -20, x: `${c.x}%`, scale: 1, opacity: 1, rotate: 0 }}
-              animate={{ y: '105vh', opacity: 0.6, rotate: 360 + Math.random() * 360 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1.5 + Math.random() * 1, ease: 'linear' }}
-              className="absolute w-2 h-3 rounded-sm"
-              style={{ backgroundColor: c.color }}
-            />
-          ))}
-        </AnimatePresence>
-      </div>
+      <ConfettiLayer pieces={confetti} />
 
       <div className="relative z-10 min-h-screen flex flex-col">
-        {/* Top bar */}
-        <div className="px-4 pt-3 flex items-center justify-between">
-          <AlertDialog.Root>
-            <AlertDialog.Trigger asChild>
-              <button className="text-white/30 hover:text-white/60 p-2 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-sm">
-                <ArrowLeft className="w-4 h-4" /> Quit
-              </button>
-            </AlertDialog.Trigger>
-            <AlertDialog.Portal>
-              <AlertDialog.Overlay className="fixed inset-0 bg-black/60 z-50 backdrop-blur-sm" />
-              <AlertDialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 bg-slate-800 border border-white/15 rounded-2xl p-6 max-w-sm w-[90vw] text-center shadow-2xl">
-                <AlertDialog.Title className="text-lg font-bold text-white mb-2">Leave the forest?</AlertDialog.Title>
-                <AlertDialog.Description className="text-white/60 text-sm mb-5">Your progress on this round won't be saved.</AlertDialog.Description>
-                <div className="flex gap-3">
-                  <AlertDialog.Cancel asChild>
-                    <button className="flex-1 py-2.5 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/15 text-sm">Keep playing</button>
-                  </AlertDialog.Cancel>
-                  <AlertDialog.Action asChild>
-                    <button onClick={() => { stopAmbient(); onExit(); }} className="flex-1 py-2.5 bg-red-500/80 hover:bg-red-500 text-white font-semibold rounded-xl text-sm">Leave</button>
-                  </AlertDialog.Action>
-                </div>
-              </AlertDialog.Content>
-            </AlertDialog.Portal>
-          </AlertDialog.Root>
-          <button onClick={() => { setAudioOn(!audioOn); if (audioOn) stopAmbient(); else startAmbient(); }}
-            className="text-white/30 hover:text-white/60 p-2">
-            {audioOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
-        </div>
-
-        {/* Hearts + word count */}
-        <div className="flex justify-center items-center gap-3 pb-1">
-          <Tooltip.Provider delayDuration={300}>
-            <Tooltip.Root>
-              <Tooltip.Trigger asChild>
-                <div className="flex gap-1.5 cursor-default">
-                  {Array.from({ length: game.maxLives }, (_, i) => {
-                    const justLost = i === game.lives;
-                    const alive = i < game.lives;
-                    return (
-                      <motion.div key={i}
-                        animate={justLost ? {
-                          scale: [1, 1.6, 0],
-                          rotate: [0, -20, 40],
-                          y: [0, -8, 20],
-                          opacity: [1, 1, 0],
-                        } : {}}
-                        transition={{ duration: 0.5 }}
-                      >
-                        <Heart className={`w-6 h-6 transition-all duration-300 ${
-                          alive ? 'text-red-400 fill-red-400 drop-shadow-[0_0_6px_rgba(248,113,113,0.6)]' : 'text-white/10 scale-75'
-                        }`} />
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              </Tooltip.Trigger>
-              <Tooltip.Portal>
-                <Tooltip.Content sideOffset={8} className="bg-slate-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg border border-white/10 shadow-lg z-50">
-                  {game.lives} {game.lives === 1 ? 'life' : 'lives'} remaining
-                  <Tooltip.Arrow className="fill-slate-800" />
-                </Tooltip.Content>
-              </Tooltip.Portal>
-            </Tooltip.Root>
-          </Tooltip.Provider>
-          <span className="text-white/25 text-xs font-medium">{game.idx + 1}/{game.total}</span>
-        </div>
+        <GameHeader
+          lives={game.lives} maxLives={game.maxLives}
+          idx={game.idx} total={game.total}
+          audioOn={audioOn} onToggleAudio={toggleAudio}
+          onQuit={() => { stopAmbient(); onExit(); }}
+          quitTitle="Leave the forest?"
+        />
 
         {/* Emoji + Hint */}
         <div className="text-center px-6 pt-3 flex-shrink-0">
