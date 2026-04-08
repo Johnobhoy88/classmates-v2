@@ -352,21 +352,22 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     : game.streak >= 5 ? `\u{1F525}\u{1F525} ${game.streak} streak!`
     : game.streak >= 3 ? `\u{1F525} ${game.streak} in a row!`
     : game.streak >= 2 ? `\u2B50 ${game.streak} streak` : '';
+  const wordWon = game.wordState === 'won';
 
   return (
     <div className="min-h-screen relative overflow-hidden">
       <SpellingForestBg state={forestState} />
 
-      {/* Confetti layer */}
-      <div className="fixed inset-0 z-20 pointer-events-none">
+      {/* Confetti — falls from top */}
+      <div className="fixed inset-0 z-20 pointer-events-none overflow-hidden">
         <AnimatePresence>
           {confetti.map(c => (
             <motion.div key={c.id}
-              initial={{ y: '40vh', x: `${c.x}%`, scale: 1, opacity: 1 }}
-              animate={{ y: '-10vh', scale: 0, opacity: 0 }}
+              initial={{ y: -20, x: `${c.x}%`, scale: 1, opacity: 1, rotate: 0 }}
+              animate={{ y: '105vh', opacity: 0.6, rotate: 360 + Math.random() * 360 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1 + Math.random() * 0.5, ease: 'easeOut' }}
-              className="absolute w-2.5 h-2.5 rounded-full"
+              transition={{ duration: 1.5 + Math.random() * 1, ease: 'linear' }}
+              className="absolute w-2 h-3 rounded-sm"
               style={{ backgroundColor: c.color }}
             />
           ))}
@@ -380,7 +381,6 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
             className="text-white/30 hover:text-white/60 p-2 rounded-lg hover:bg-white/5 flex items-center gap-1.5 text-sm">
             <ArrowLeft className="w-4 h-4" /> Quit
           </button>
-          <span className="text-white/30 text-sm font-medium">{game.idx + 1} / {game.total}</span>
           <button onClick={() => { setAudioOn(!audioOn); if (audioOn) stopAmbient(); else startAmbient(); }}
             className="text-white/30 hover:text-white/60 p-2">
             {audioOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
@@ -390,51 +390,79 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
         {/* Hearts + word count */}
         <div className="flex justify-center items-center gap-3 pb-1">
           <div className="flex gap-1.5">
-            {Array.from({ length: game.maxLives }, (_, i) => (
-              <motion.div key={i}
-                animate={i === game.lives ? { scale: [1, 1.5, 0.7, 1], opacity: [1, 1, 0.2, 0.2] } : {}}
-                transition={{ duration: 0.35 }}
-              >
-                <Heart className={`w-6 h-6 ${i < game.lives ? 'text-red-400 fill-red-400 drop-shadow-[0_0_4px_rgba(248,113,113,0.5)]' : 'text-white/15'}`} />
-              </motion.div>
-            ))}
+            {Array.from({ length: game.maxLives }, (_, i) => {
+              const justLost = i === game.lives;
+              const alive = i < game.lives;
+              return (
+                <motion.div key={i}
+                  animate={justLost ? {
+                    scale: [1, 1.6, 0],
+                    rotate: [0, -20, 40],
+                    y: [0, -8, 20],
+                    opacity: [1, 1, 0],
+                  } : {}}
+                  transition={{ duration: 0.5 }}
+                >
+                  <Heart className={`w-6 h-6 transition-all duration-300 ${
+                    alive ? 'text-red-400 fill-red-400 drop-shadow-[0_0_6px_rgba(248,113,113,0.6)]' : 'text-white/10 scale-75'
+                  }`} />
+                </motion.div>
+              );
+            })}
           </div>
           <span className="text-white/25 text-xs font-medium">{game.idx + 1}/{game.total}</span>
         </div>
 
-        {/* Emoji + Hint — BIGGER */}
+        {/* Emoji + Hint */}
         <div className="text-center px-6 pt-3 flex-shrink-0">
           <AnimatePresence mode="wait">
             <motion.div key={game.idx}
-              initial={{ opacity: 0, y: 20, scale: 0.85 }}
+              initial={{ opacity: 0, y: 30, scale: 0.8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ type: 'spring', damping: 12, stiffness: 150 }}
+              exit={{ opacity: 0, y: -20, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 12, stiffness: 120 }}
             >
-              {emoji && <div className="text-7xl mb-3 drop-shadow-lg">{emoji}</div>}
+              {emoji && (
+                <motion.div
+                  className="text-7xl mb-3 drop-shadow-lg inline-block"
+                  animate={wordWon ? {
+                    scale: [1, 1.3, 1.1, 1.25, 1],
+                    rotate: [0, -8, 8, -4, 0],
+                  } : {}}
+                  transition={{ duration: 0.6 }}
+                >{emoji}</motion.div>
+              )}
               <p className="text-white/80 text-lg font-medium leading-snug max-w-xs mx-auto">{game.words[game.idx].h}</p>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Letter slots — BIGGER */}
+        {/* Letter slots — drop-in from above, fly-out upward */}
         <div className="flex justify-center gap-2 sm:gap-3 px-4 pt-6 pb-2">
           <AnimatePresence mode="wait">
             <motion.div key={game.idx} className="flex gap-2 sm:gap-3"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.2 }}
             >
               {game.word.split('').map((ch, i) => {
                 const revealed = game.revealed[i];
                 const failed = game.wordState === 'lost';
                 return (
                   <motion.div key={`${game.idx}-${i}`}
-                    initial={{ scale: 0, rotate: -10 }}
+                    initial={{ y: -40, opacity: 0, scale: 0.7 }}
                     animate={shake && !revealed ? {
-                      x: [0, -5, 5, -5, 5, 0], scale: 1, rotate: 0,
+                      x: [0, -6, 6, -6, 6, 0], y: 0, opacity: 1, scale: 1,
+                    } : revealed ? {
+                      y: 0, opacity: 1, scale: [1, 1.25, 1],
                     } : {
-                      scale: revealed ? [1, 1.2, 1] : 1, rotate: 0, x: 0,
+                      y: 0, opacity: 1, scale: 1, x: 0,
                     }}
-                    transition={revealed ? { type: 'spring', damping: 10, delay: i * 0.04 } : { delay: i * 0.05, type: 'spring', damping: 12 }}
+                    transition={revealed
+                      ? { type: 'spring', damping: 8, stiffness: 200, delay: i * 0.04 }
+                      : { type: 'spring', damping: 14, delay: i * 0.06 }
+                    }
                     className={`w-12 h-14 sm:w-14 sm:h-16 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl font-bold border-2 backdrop-blur-sm ${
                       failed && revealed ? 'bg-red-500/30 border-red-400/50 text-red-200'
                       : revealed ? 'bg-emerald-500/30 border-emerald-400/50 text-white shadow-[0_0_20px_rgba(46,204,113,0.4)]'
@@ -449,16 +477,22 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           </AnimatePresence>
         </div>
 
-        {/* Streak */}
-        <AnimatePresence>
-          {streakMsg && (
-            <motion.p initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-              className="text-center text-amber-300 text-base font-bold py-2 drop-shadow-lg"
-            >{streakMsg}</motion.p>
-          )}
-        </AnimatePresence>
+        {/* Streak — pulsing flame effect */}
+        <div className="h-8 flex items-center justify-center">
+          <AnimatePresence>
+            {streakMsg && (
+              <motion.p
+                initial={{ opacity: 0, scale: 0.5, y: 10 }}
+                animate={{ opacity: 1, scale: [1, 1.08, 1], y: 0 }}
+                exit={{ opacity: 0, scale: 0.8, y: -10 }}
+                transition={{ type: 'spring', damping: 10 }}
+                className="text-amber-300 text-base font-bold drop-shadow-lg"
+              >{streakMsg}</motion.p>
+            )}
+          </AnimatePresence>
+        </div>
 
-        {/* Keyboard — BIGGER */}
+        {/* Keyboard */}
         <div className="mt-auto pb-5 px-1 sm:px-3">
           {KEYBOARD_ROWS.map((row, ri) => (
             <div key={ri} className="flex justify-center gap-[3px] sm:gap-1.5 mb-[5px] sm:mb-2">
@@ -466,20 +500,32 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
                 const state = game.usedKeys.get(ch);
                 const disabled = !!state || game.wordState !== 'playing';
                 return (
-                  <motion.button key={ch}
-                    whileHover={disabled ? {} : { scale: 1.12, y: -3 }}
-                    whileTap={disabled ? {} : { scale: 0.88 }}
-                    animate={state === 'wrong' ? { x: [0, -4, 4, -4, 0] } : {}}
-                    onClick={() => pressKey(ch)}
-                    disabled={disabled}
-                    className={`w-[8.5vw] max-w-[42px] h-[11vw] max-h-[52px] rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold border-2 transition-colors uppercase ${
-                      state === 'correct' ? 'bg-emerald-500/50 border-emerald-400/60 text-white shadow-[0_0_12px_rgba(46,204,113,0.4)]'
-                      : state === 'wrong' ? 'bg-red-500/30 border-red-400/40 text-red-300/50'
-                      : 'bg-white/10 border-white/15 text-white/90 hover:bg-white/18 hover:border-white/30 active:bg-white/25'
-                    }`}
-                  >
-                    {ch}
-                  </motion.button>
+                  <div key={ch} className="relative">
+                    {/* Expanding ring on correct */}
+                    {state === 'correct' && (
+                      <motion.div
+                        initial={{ scale: 0.5, opacity: 0.8 }}
+                        animate={{ scale: 2.5, opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 rounded-2xl border-2 border-emerald-400 pointer-events-none"
+                      />
+                    )}
+                    <motion.button
+                      whileHover={disabled ? {} : { scale: 1.12, y: -3 }}
+                      whileTap={disabled ? {} : { scale: 0.85 }}
+                      animate={state === 'correct' ? { scale: [1, 1.15, 1] } : state === 'wrong' ? { x: [0, -5, 5, -5, 5, 0] } : {}}
+                      transition={state === 'correct' ? { type: 'spring', damping: 8 } : { duration: 0.3 }}
+                      onClick={() => pressKey(ch)}
+                      disabled={disabled}
+                      className={`w-[8.5vw] max-w-[42px] h-[11vw] max-h-[52px] rounded-xl sm:rounded-2xl text-base sm:text-lg font-bold border-2 uppercase relative ${
+                        state === 'correct' ? 'bg-emerald-500/50 border-emerald-400/60 text-white shadow-[0_0_14px_rgba(46,204,113,0.5)]'
+                        : state === 'wrong' ? 'bg-red-500/30 border-red-400/40 text-red-300/40'
+                        : 'bg-white/10 border-white/15 text-white/90 hover:bg-white/18 hover:border-white/30 active:bg-white/25'
+                      }`}
+                    >
+                      {ch}
+                    </motion.button>
+                  </div>
                 );
               })}
             </div>
