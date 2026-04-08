@@ -74,24 +74,25 @@ export function SpellingForestBg() {
     }
 
     function drawSky(t: number) {
-      // Deep night gradient
+      // Twilight forest gradient — brighter, magical
       const grad = ctx!.createLinearGradient(0, 0, 0, H * 0.8);
-      grad.addColorStop(0, '#050a1a');
-      grad.addColorStop(0.25, '#0a1230');
-      grad.addColorStop(0.5, '#0d1f35');
-      grad.addColorStop(0.8, '#0a2a1a');
-      grad.addColorStop(1, '#061510');
+      grad.addColorStop(0, '#1a2a5c');
+      grad.addColorStop(0.2, '#1e3a6e');
+      grad.addColorStop(0.4, '#1a4a5a');
+      grad.addColorStop(0.65, '#1a5a3a');
+      grad.addColorStop(0.85, '#145a2e');
+      grad.addColorStop(1, '#0e3a1e');
       ctx!.fillStyle = grad;
       ctx!.fillRect(0, 0, W, H);
 
-      // Aurora hint — very subtle
-      const auroraGrad = ctx!.createLinearGradient(W * 0.2, 0, W * 0.8, H * 0.3);
+      // Aurora — brighter, more visible
+      const auroraGrad = ctx!.createLinearGradient(W * 0.1, 0, W * 0.9, H * 0.4);
       auroraGrad.addColorStop(0, 'rgba(46,204,113,0)');
-      auroraGrad.addColorStop(0.3, `rgba(46,204,113,${0.02 + Math.sin(t * 0.0003) * 0.01})`);
-      auroraGrad.addColorStop(0.6, `rgba(52,152,219,${0.015 + Math.sin(t * 0.0004 + 1) * 0.01})`);
+      auroraGrad.addColorStop(0.3, `rgba(46,204,113,${0.06 + Math.sin(t * 0.0003) * 0.03})`);
+      auroraGrad.addColorStop(0.6, `rgba(52,152,219,${0.05 + Math.sin(t * 0.0004 + 1) * 0.03})`);
       auroraGrad.addColorStop(1, 'rgba(52,152,219,0)');
       ctx!.fillStyle = auroraGrad;
-      ctx!.fillRect(0, 0, W, H * 0.35);
+      ctx!.fillRect(0, 0, W, H * 0.4);
     }
 
     function drawMoon(_t: number) {
@@ -136,14 +137,14 @@ export function SpellingForestBg() {
       for (const tr of trees) {
         const sway = Math.sin(t * 0.0005 + tr.x * 0.01) * 2;
         // Trunk
-        ctx!.fillStyle = 'rgba(15,25,15,0.9)';
+        ctx!.fillStyle = 'rgba(40,55,30,0.9)';
         ctx!.fillRect(tr.x - 4, baseY - tr.h * 0.35, 8, tr.h * 0.4);
-        // Foliage — layered dark circles
+        // Foliage — layered circles, brighter greens
         const layers = [
-          { dx: 0, dy: -0.55, r: 0.45, c: 'rgba(10,35,18,0.95)' },
-          { dx: -0.2, dy: -0.48, r: 0.35, c: 'rgba(15,45,22,0.9)' },
-          { dx: 0.2, dy: -0.5, r: 0.3, c: 'rgba(12,40,20,0.9)' },
-          { dx: 0, dy: -0.62, r: 0.28, c: 'rgba(18,50,25,0.85)' },
+          { dx: 0, dy: -0.55, r: 0.45, c: 'rgba(20,70,35,0.9)' },
+          { dx: -0.2, dy: -0.48, r: 0.35, c: 'rgba(30,85,40,0.85)' },
+          { dx: 0.2, dy: -0.5, r: 0.3, c: 'rgba(25,80,38,0.85)' },
+          { dx: 0, dy: -0.62, r: 0.28, c: 'rgba(35,95,45,0.8)' },
         ];
         for (const l of layers) {
           ctx!.fillStyle = l.c;
@@ -157,14 +158,14 @@ export function SpellingForestBg() {
     function drawGround() {
       const baseY = H * 0.82;
       const grad = ctx!.createLinearGradient(0, baseY, 0, H);
-      grad.addColorStop(0, '#0a1f10');
-      grad.addColorStop(0.3, '#071510');
-      grad.addColorStop(1, '#040d08');
+      grad.addColorStop(0, '#1a4a25');
+      grad.addColorStop(0.3, '#123a1a');
+      grad.addColorStop(1, '#0a2510');
       ctx!.fillStyle = grad;
       ctx!.fillRect(0, baseY, W, H - baseY);
 
       // Grass tufts
-      ctx!.fillStyle = 'rgba(20,60,30,0.5)';
+      ctx!.fillStyle = 'rgba(40,100,50,0.5)';
       for (let i = 0; i < 40; i++) {
         const gx = rand(0, W);
         const gy = baseY + rand(-2, 10);
@@ -181,7 +182,7 @@ export function SpellingForestBg() {
         const glow = 0.3 + 0.3 * Math.sin(t * 0.002 + m.phase);
         // Glow
         const mg = ctx!.createRadialGradient(m.x, m.y - m.size, 0, m.x, m.y - m.size, m.size * 3);
-        mg.addColorStop(0, `hsla(${m.hue},80%,60%,${glow * 0.15})`);
+        mg.addColorStop(0, `hsla(${m.hue},80%,60%,${glow * 0.25})`);
         mg.addColorStop(1, `hsla(${m.hue},80%,60%,0)`);
         ctx!.fillStyle = mg;
         ctx!.fillRect(m.x - m.size * 3, m.y - m.size * 4, m.size * 6, m.size * 4);
@@ -224,8 +225,8 @@ export function SpellingForestBg() {
         const pulse = 0.5 + 0.5 * Math.sin(t * 0.003 + ff.phase);
         const glowR = ff.size * (2 + pulse);
         const glow = ctx!.createRadialGradient(ff.x, ff.y, 0, ff.x, ff.y, glowR);
-        glow.addColorStop(0, `rgba(255,238,170,${ff.brightness * pulse * 0.6})`);
-        glow.addColorStop(0.5, `rgba(255,238,170,${ff.brightness * pulse * 0.15})`);
+        glow.addColorStop(0, `rgba(255,238,170,${ff.brightness * pulse * 0.8})`);
+        glow.addColorStop(0.5, `rgba(255,238,170,${ff.brightness * pulse * 0.25})`);
         glow.addColorStop(1, 'rgba(255,238,170,0)');
         ctx!.fillStyle = glow;
         ctx!.fillRect(ff.x - glowR, ff.y - glowR, glowR * 2, glowR * 2);
