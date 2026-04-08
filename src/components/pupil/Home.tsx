@@ -8,6 +8,8 @@
 import { useState, useEffect, lazy, Suspense, type ComponentType } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useProgress } from '../../hooks/useProgress';
+import { motion } from 'motion/react';
+import { Star, Gamepad2, Coins, BookOpen, Volume2, Type, PenTool, Music, CircleDot, TextCursorInput, Shuffle, ListOrdered, BookOpenText, Calculator, Link, Grid3X3, PieChart, PoundSterling, Clock, Layers, HelpCircle, Triangle, Ruler, FileQuestion, Zap, BarChart3, TrendingUp, Landmark, Globe, CloudSun, Compass, Flag, MapPin, Brain, Bug, Keyboard, CalendarDays, Swords, Car } from 'lucide-react';
 
 // Lazy-load ALL game components for code splitting
 const GameShell = lazy(() => import('../shared/GameShell').then(m => ({ default: m.GameShell })));
@@ -94,63 +96,78 @@ const QUIZ_GAMES: Record<string, ComponentType<{ onExit: () => void }>> = {
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
 
+// Lucide icon mapping per game
+const GAME_ICONS: Record<string, typeof Star> = {
+  spelling: Type, phonics: Volume2, vocab: BookOpen, grammar: PenTool,
+  rhyme: Music, punctuation: CircleDot, wordfam: TextCursorInput, dictation: Volume2,
+  vowels: HelpCircle, anagram: Shuffle, sentence: ListOrdered, reading: BookOpenText,
+  maths: Calculator, bonds: Link, times: Grid3X3, fractions: PieChart,
+  money: PoundSterling, telltime: Clock, placeval: Layers, missnum: HelpCircle,
+  shapes: Triangle, measure: Ruler, wordprob: FileQuestion, speed: Zap,
+  datahandling: BarChart3, sequence: TrendingUp,
+  capitals: Landmark, continents: Globe, weather: CloudSun, compass: Compass,
+  flags: Flag, scotquiz: MapPin,
+  memorymatch: Brain, spellingbee: Bug, typing: Keyboard, daily: CalendarDays,
+  h2h: Swords, hdash: Car,
+};
+
 const GAME_CATEGORIES = [
   {
     name: 'Literacy', color: 'bg-amber-500',
     games: [
-      { id: 'spelling', title: 'Spelling', icon: 'Aa', desc: 'Guess the word!' },
-      { id: 'phonics', title: 'Phonics', icon: 'ai', desc: 'Sound patterns' },
-      { id: 'vocab', title: 'Vocabulary', icon: 'A-Z', desc: 'Words and meanings' },
-      { id: 'grammar', title: 'Grammar', icon: 'N V', desc: 'Word types' },
-      { id: 'rhyme', title: 'Rhyming', icon: '\u266B', desc: 'Match sounds' },
-      { id: 'punctuation', title: 'Punctuation', icon: '.?!', desc: 'Fix the marks' },
-      { id: 'wordfam', title: 'Word Families', icon: '-ing', desc: 'Common endings' },
-      { id: 'dictation', title: 'Dictation', icon: '\u{1F50A}', desc: 'Listen and spell' },
-      { id: 'vowels', title: 'Missing Vowels', icon: '_e_', desc: 'Fill the gaps' },
-      { id: 'anagram', title: 'Anagrams', icon: 'ABC', desc: 'Unjumble letters' },
-      { id: 'sentence', title: 'Sentences', icon: '1 2 3', desc: 'Put words in order' },
-      { id: 'reading', title: 'Reading', icon: 'Bb', desc: 'Stories & questions' },
+      { id: 'spelling', title: 'Spelling', desc: 'Guess the word!' },
+      { id: 'phonics', title: 'Phonics', desc: 'Sound patterns' },
+      { id: 'vocab', title: 'Vocabulary', desc: 'Words and meanings' },
+      { id: 'grammar', title: 'Grammar', desc: 'Word types' },
+      { id: 'rhyme', title: 'Rhyming', desc: 'Match sounds' },
+      { id: 'punctuation', title: 'Punctuation', desc: 'Fix the marks' },
+      { id: 'wordfam', title: 'Word Families', desc: 'Common endings' },
+      { id: 'dictation', title: 'Dictation', desc: 'Listen and spell' },
+      { id: 'vowels', title: 'Missing Vowels', desc: 'Fill the gaps' },
+      { id: 'anagram', title: 'Anagrams', desc: 'Unjumble letters' },
+      { id: 'sentence', title: 'Sentences', desc: 'Put words in order' },
+      { id: 'reading', title: 'Reading', desc: 'Stories & questions' },
     ],
   },
   {
     name: 'Numeracy', color: 'bg-blue-500',
     games: [
-      { id: 'maths', title: 'Maths', icon: '1+2', desc: 'Number crunching!' },
-      { id: 'bonds', title: 'Number Bonds', icon: '10', desc: 'Make the number!' },
-      { id: 'times', title: 'Times Tables', icon: '\u00D7', desc: 'Speed drill' },
-      { id: 'fractions', title: 'Fractions', icon: '\u00BD', desc: 'Parts of a whole' },
-      { id: 'money', title: 'Money', icon: '\u00A3p', desc: 'Coins & change' },
-      { id: 'telltime', title: 'Telling Time', icon: '3:00', desc: 'Read the clock' },
-      { id: 'placeval', title: 'Place Value', icon: 'HTO', desc: 'Hundreds, tens, ones' },
-      { id: 'missnum', title: 'Missing Number', icon: '?', desc: 'Find the gap' },
-      { id: 'shapes', title: 'Shapes', icon: '\u25B3', desc: 'Geometry' },
-      { id: 'measure', title: 'Measurement', icon: 'cm', desc: 'Units & comparisons' },
-      { id: 'wordprob', title: 'Word Problems', icon: '!', desc: 'Real-world maths' },
-      { id: 'speed', title: 'Speed Maths', icon: '60s', desc: 'Beat the clock!' },
-      { id: 'datahandling', title: 'Data Handling', icon: '\u{1F4CA}', desc: 'Charts & graphs' },
-      { id: 'sequence', title: 'Sequences', icon: '1,2,?', desc: 'Spot the pattern' },
+      { id: 'maths', title: 'Maths', desc: 'Number crunching!' },
+      { id: 'bonds', title: 'Number Bonds', desc: 'Make the number!' },
+      { id: 'times', title: 'Times Tables', desc: 'Speed drill' },
+      { id: 'fractions', title: 'Fractions', desc: 'Parts of a whole' },
+      { id: 'money', title: 'Money', desc: 'Coins & change' },
+      { id: 'telltime', title: 'Telling Time', desc: 'Read the clock' },
+      { id: 'placeval', title: 'Place Value', desc: 'Hundreds, tens, ones' },
+      { id: 'missnum', title: 'Missing Number', desc: 'Find the gap' },
+      { id: 'shapes', title: 'Shapes', desc: 'Geometry' },
+      { id: 'measure', title: 'Measurement', desc: 'Units & comparisons' },
+      { id: 'wordprob', title: 'Word Problems', desc: 'Real-world maths' },
+      { id: 'speed', title: 'Speed Maths', desc: 'Beat the clock!' },
+      { id: 'datahandling', title: 'Data Handling', desc: 'Charts & graphs' },
+      { id: 'sequence', title: 'Sequences', desc: 'Spot the pattern' },
     ],
   },
   {
     name: 'Geography', color: 'bg-emerald-600',
     games: [
-      { id: 'capitals', title: 'Capitals', icon: '\u{1F3DB}', desc: 'Capital cities' },
-      { id: 'continents', title: 'Continents', icon: '\u{1F30D}', desc: 'World geography' },
-      { id: 'weather', title: 'Weather', icon: '\u2600', desc: 'Seasons & climate' },
-      { id: 'compass', title: 'Compass', icon: '\u{1F9ED}', desc: 'Directions' },
-      { id: 'flags', title: 'Flags', icon: '\u{1F3F3}', desc: 'Identify flags' },
-      { id: 'scotquiz', title: 'Scotland Quiz', icon: '\u{1F3F4}', desc: 'All about Scotland' },
+      { id: 'capitals', title: 'Capitals', desc: 'Capital cities' },
+      { id: 'continents', title: 'Continents', desc: 'World geography' },
+      { id: 'weather', title: 'Weather', desc: 'Seasons & climate' },
+      { id: 'compass', title: 'Compass', desc: 'Directions' },
+      { id: 'flags', title: 'Flags', desc: 'Identify flags' },
+      { id: 'scotquiz', title: 'Scotland Quiz', desc: 'All about Scotland' },
     ],
   },
   {
     name: 'Challenge', color: 'bg-purple-500',
     games: [
-      { id: 'memorymatch', title: 'Memory Match', icon: '\u{1F0CF}', desc: 'Find the pairs!' },
-      { id: 'spellingbee', title: 'Spelling Bee', icon: '\u{1F41D}', desc: 'How far?' },
-      { id: 'typing', title: 'Typing Speed', icon: '\u2328', desc: 'Type fast!' },
-      { id: 'daily', title: 'Daily Challenge', icon: '\u{1F31F}', desc: 'New every day' },
-      { id: 'h2h', title: 'Head to Head', icon: '\u{1F93C}', desc: '2-player maths race!' },
-      { id: 'hdash', title: 'Southlodge Racers', icon: '\u{1F3CE}', desc: '3D racing!' },
+      { id: 'memorymatch', title: 'Memory Match', desc: 'Find the pairs!' },
+      { id: 'spellingbee', title: 'Spelling Bee', desc: 'How far?' },
+      { id: 'typing', title: 'Typing Speed', desc: 'Type fast!' },
+      { id: 'daily', title: 'Daily Challenge', desc: 'New every day' },
+      { id: 'h2h', title: 'Head to Head', desc: '2-player maths race!' },
+      { id: 'hdash', title: 'Southlodge Racers', desc: '3D racing!' },
     ],
   },
 ];
@@ -199,48 +216,63 @@ export function PupilHome() {
         <button onClick={logoutPupil} className="text-sm text-white/40 hover:text-white/70 px-3 py-2 rounded-lg hover:bg-white/5">Switch pupil</button>
       </header>
 
-      <div className="px-6 pb-4">
+      <motion.div className="px-6 pb-4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
         <div className="flex gap-3">
           <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/10 text-center">
+            <Star className="w-4 h-4 text-amber-300 mx-auto mb-1" />
             <p className="text-2xl font-bold text-amber-300">{stats.totalStars}</p>
             <p className="text-xs text-white/50 font-semibold">Stars</p>
           </div>
           <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/10 text-center">
+            <Gamepad2 className="w-4 h-4 text-emerald-300 mx-auto mb-1" />
             <p className="text-2xl font-bold text-emerald-300">{stats.totalGames}</p>
             <p className="text-xs text-white/50 font-semibold">Games</p>
           </div>
           <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl px-4 py-3 border border-white/10 text-center">
+            <Coins className="w-4 h-4 text-yellow-300 mx-auto mb-1" />
             <p className="text-2xl font-bold text-yellow-300">{stats.totalCoins}</p>
             <p className="text-xs text-white/50 font-semibold">Coins</p>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       <main className="px-4 pb-12 max-w-2xl mx-auto space-y-8">
-        {GAME_CATEGORIES.map((cat) => (
-          <section key={cat.name}>
+        {GAME_CATEGORIES.map((cat, catIdx) => (
+          <motion.section
+            key={cat.name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 + catIdx * 0.1 }}
+          >
             <h2 className="text-lg font-bold text-white/80 mb-3 flex items-center gap-2">
               <span className={`w-3 h-3 rounded-full ${cat.color}`} />
               {cat.name}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {cat.games.map((game) => {
+              {cat.games.map((game, gameIdx) => {
                 const playable = ALL_PLAYABLE.has(game.id);
+                const Icon = GAME_ICONS[game.id] || Star;
                 return (
-                  <button key={game.id}
+                  <motion.button
+                    key={game.id}
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 + catIdx * 0.1 + gameIdx * 0.03 }}
                     className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all text-left ${
                       playable ? 'bg-white/10 hover:bg-white/15 backdrop-blur-sm border-white/10 hover:border-white/20 hover:scale-[1.03] cursor-pointer active:scale-[0.97]'
                         : 'bg-white/5 border-white/5 opacity-50 cursor-not-allowed'
                     }`}
-                    onClick={() => playable && setActiveGame(game.id)} disabled={!playable}>
-                    <span className="text-2xl">{game.icon}</span>
+                    onClick={() => playable && setActiveGame(game.id)}
+                    disabled={!playable}
+                  >
+                    <Icon className="w-7 h-7 text-white/80" strokeWidth={1.5} />
                     <span className="text-sm font-bold text-white">{game.title}</span>
                     <span className="text-xs text-white/50">{playable ? game.desc : 'Coming soon'}</span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
-          </section>
+          </motion.section>
         ))}
       </main>
       <footer className="text-center pb-6 text-xs text-white/20">South Lodge Primary, Invergordon</footer>
