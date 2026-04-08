@@ -14,6 +14,7 @@ import { GameLoading } from '../shared/GameNav';
 
 // Lazy-load ALL game components for code splitting
 const GameShell = lazy(() => import('../shared/GameShell').then(m => ({ default: m.GameShell })));
+const SpellingGame = lazy(() => import('../games/SpellingGame').then(m => ({ default: m.SpellingGame })));
 const MathsQuiz = lazy(() => import('../games/MathsQuiz').then(m => ({ default: m.MathsQuiz })));
 const GrammarQuiz = lazy(() => import('../games/GrammarQuiz').then(m => ({ default: m.GrammarQuiz })));
 const VocabQuiz = lazy(() => import('../games/VocabQuiz').then(m => ({ default: m.VocabQuiz })));
@@ -69,12 +70,12 @@ function GeoQuizLazy({ variant, onExit }: { variant: string; onExit: () => void 
 
 // GameLoading imported from shared/GameNav
 
-// Phaser games
-const PHASER_GAMES = new Set(['spelling']);
+// Phaser games (none currently — spelling moved to React)
+const PHASER_GAMES = new Set<string>([]);
 
 // Quiz games
 const QUIZ_GAMES: Record<string, ComponentType<{ onExit: () => void }>> = {
-  maths: MathsQuiz, grammar: GrammarQuiz, vocab: VocabQuiz, phonics: PhonicsQuiz,
+  spelling: SpellingGame, maths: MathsQuiz, grammar: GrammarQuiz, vocab: VocabQuiz, phonics: PhonicsQuiz,
   rhyme: RhymeQuiz, measure: MeasureQuiz, shapes: ShapesQuiz, wordprob: WordProbQuiz,
   punctuation: PunctuationQuiz, bonds: BondsQuiz,
   capitals: CapitalsQuiz, continents: ContinentsQuiz, weather: WeatherQuiz,
