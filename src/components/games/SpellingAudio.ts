@@ -32,7 +32,12 @@ function getCtx(): AudioContext {
   return ctx;
 }
 
-// === AMBIENT ===
+// === AMBIENT: Magical forest music ===
+
+// Arpeggio patterns (scale degrees)
+const ARPEGGIO_MAJOR = [0, 2, 4, 7, 4, 2]; // C E G C' G E
+const ARPEGGIO_MINOR = [0, 2, 3, 7, 3, 2]; // A C D A' D C
+let arpeggioInterval: ReturnType<typeof setTimeout> | null = null;
 
 export function startAmbient(difficulty: number = 1) {
   if (ambientRunning) return;
@@ -41,47 +46,90 @@ export function startAmbient(difficulty: number = 1) {
   currentScale = difficulty >= 3 ? A_MINOR : C_MAJOR;
   scaleIndex = 0;
 
-  // Pad drone
-  const padOsc = c.createOscillator();
-  const padOsc2 = c.createOscillator();
-  const padFilter = c.createBiquadFilter();
+  // === Soft major chord pad (bright, not ominous) ===
+  // Root + 3rd + 5th as gentle sine waves, higher octave
+  const chordFreqs = [currentScale[0], currentScale[2], currentScale[4]];
   padGainNode = c.createGain();
-  padOsc.type = 'sawtooth';
-  padOsc.frequency.value = currentScale[0] / 4;
-  padOsc2.type = 'sawtooth';
-  padOsc2.frequency.value = currentScale[0] / 4 + 0.5;
-  padFilter.type = 'lowpass';
-  padFilter.frequency.value = 200;
-  padFilter.Q.value = 1;
   padGainNode.gain.value = 0;
-  padOsc.connect(padFilter); padOsc2.connect(padFilter);
-  padFilter.connect(padGainNode); padGainNode.connect(c.destination);
-  padOsc.start(); padOsc2.start();
-  padGainNode.gain.linearRampToValueAtTime(0.03, c.currentTime + 3);
-  ambientNodes.push(padOsc, padOsc2, padFilter, padGainNode);
+  padGainNode.connect(c.destination);
 
-  // Wind
+  for (const freq of chordFreqs) {
+    const osc = c.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq; // C4, E4, G4 range
+    const filter = c.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    osc.connect(filter);
+    filter.connect(padGainNode);
+    osc.start();
+    ambientNodes.push(osc, filter);
+  }
+  // Gentle volume pulse (breathing feel, not static)
+  const padLfo = c.createOscillator();
+  const padLfoGain = c.createGain();
+  padLfo.frequency.value = 0.12; // slow breathing
+  padLfoGain.gain.value = 0.008;
+  padLfo.connect(padLfoGain);
+  padLfoGain.connect(padGainNode.gain);
+  padLfo.start();
+  ambientNodes.push(padGainNode, padLfo, padLfoGain);
+  padGainNode.gain.linearRampToValueAtTime(0.025, c.currentTime + 2);
+
+  // === Gentle harp arpeggio — cycling bell notes ===
+  const arpPattern = difficulty >= 3 ? ARPEGGIO_MINOR : ARPEGGIO_MAJOR;
+  let arpIdx = 0;
+  function playArpNote() {
+    if (!ambientRunning) return;
+    const degree = arpPattern[arpIdx % arpPattern.length];
+    const freq = currentScale[degree % currentScale.length] * (degree >= 7 ? 2 : 1);
+    // Soft plucked bell tone
+    try {
+      const osc = c.createOscillator();
+      const osc2 = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      osc2.type = 'sine';
+      osc2.frequency.value = freq * 2; // octave harmonic
+      const g2 = c.createGain();
+      g2.gain.value = 0.3; // harmonic quieter
+      osc.connect(gain);
+      osc2.connect(g2);
+      g2.connect(gain);
+      gain.connect(c.destination);
+      gain.gain.value = 0.06;
+      gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + 1.8);
+      osc.start(c.currentTime);
+      osc.stop(c.currentTime + 2);
+      osc2.start(c.currentTime);
+      osc2.stop(c.currentTime + 1.5);
+    } catch {}
+    arpIdx++;
+    // Timing: ~0.8s between notes, slight swing feel
+    const nextDelay = 700 + (arpIdx % 2 === 0 ? 100 : 0) + Math.random() * 100;
+    arpeggioInterval = setTimeout(playArpNote, nextDelay);
+  }
+  // Start arpeggio after a short delay
+  arpeggioInterval = setTimeout(playArpNote, 1500);
+
+  // === Soft wind (quieter, higher, more breathy) ===
   const windBuf = c.createBuffer(1, c.sampleRate * 2, c.sampleRate);
   const d = windBuf.getChannelData(0);
   for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   const windSrc = c.createBufferSource();
   windSrc.buffer = windBuf; windSrc.loop = true;
   const windFilter = c.createBiquadFilter();
-  windFilter.type = 'bandpass'; windFilter.frequency.value = 400; windFilter.Q.value = 0.5;
+  windFilter.type = 'bandpass'; windFilter.frequency.value = 600; windFilter.Q.value = 0.3;
   windGainNode = c.createGain();
   windGainNode.gain.value = 0;
   windSrc.connect(windFilter); windFilter.connect(windGainNode); windGainNode.connect(c.destination);
   windSrc.start();
-  windGainNode.gain.linearRampToValueAtTime(0.015, c.currentTime + 4);
-  const windLfo = c.createOscillator();
-  const windLfoGain = c.createGain();
-  windLfo.frequency.value = 0.15; windLfoGain.gain.value = 0.006;
-  windLfo.connect(windLfoGain); windLfoGain.connect(windGainNode.gain);
-  windLfo.start();
-  ambientNodes.push(windSrc, windFilter, windGainNode, windLfo, windLfoGain);
+  windGainNode.gain.linearRampToValueAtTime(0.008, c.currentTime + 4);
+  ambientNodes.push(windSrc, windFilter, windGainNode);
 
-  // Crickets
-  scheduleCrickets(c, 1500);
+  // === Crickets (brighter, less frequent) ===
+  scheduleCrickets(c, 2500);
 }
 
 function scheduleCrickets(c: AudioContext, baseDelay: number) {
@@ -90,21 +138,21 @@ function scheduleCrickets(c: AudioContext, baseDelay: number) {
     if (!ambientRunning) return;
     chirp(c);
     scheduleCrickets(c, baseDelay);
-  }, baseDelay * (0.5 + Math.random()));
+  }, baseDelay * (0.6 + Math.random() * 0.8));
 }
 
 function chirp(c: AudioContext) {
   const osc = c.createOscillator();
   const gain = c.createGain();
   osc.type = 'sine';
-  osc.frequency.value = 4000 + Math.random() * 2000;
+  osc.frequency.value = 5000 + Math.random() * 2000; // higher, brighter
   gain.gain.value = 0;
   osc.connect(gain); gain.connect(c.destination);
   osc.start(c.currentTime);
-  const len = 0.03;
-  const count = 2 + Math.floor(Math.random() * 4);
+  const len = 0.025;
+  const count = 2 + Math.floor(Math.random() * 3);
   for (let i = 0; i < count; i++) {
-    gain.gain.setValueAtTime(0.012, c.currentTime + i * len * 2);
+    gain.gain.setValueAtTime(0.008, c.currentTime + i * len * 2);
     gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + i * len * 2 + len);
   }
   osc.stop(c.currentTime + count * len * 2 + 0.1);
@@ -140,6 +188,8 @@ export function stopAmbient() {
   ambientRunning = false;
   if (cricketInterval) clearTimeout(cricketInterval);
   cricketInterval = null;
+  if (arpeggioInterval) clearTimeout(arpeggioInterval);
+  arpeggioInterval = null;
   streakPadNode = null; streakPadGain = null;
   windGainNode = null; padGainNode = null;
   if (!ctx) return;
