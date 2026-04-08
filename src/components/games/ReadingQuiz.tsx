@@ -10,10 +10,7 @@ import { READING, type ReadingLevel, type ReadingStory } from '../../game/conten
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
 import { LevelSelect } from '../shared/LevelSelect';
 import { sanitizeHtml } from '../../utils/sanitize';
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a;
-}
+import { shuffle } from '../../utils/shuffle';
 
 function storyToQuiz(story: ReadingStory): QuizQuestion[] {
   return story.questions.map((q) => ({

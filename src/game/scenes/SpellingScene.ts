@@ -8,6 +8,7 @@
 import Phaser from 'phaser';
 import { SPELLING, type SpellingWord } from '../content/spelling-data';
 import { sfxCorrect, sfxWrong, sfxStreak, sfxLevelUp } from '../systems/AudioSystem';
+import { calcStars } from '../../utils/stars';
 
 // Callback for when the game ends
 type OnCompleteCallback = (result: {
@@ -375,7 +376,7 @@ export class SpellingScene extends Phaser.Scene {
 
   private finishGame() {
     const pct = this.state.correct / this.state.total;
-    const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+    const stars = calcStars(pct);
 
     if (stars >= 3) sfxLevelUp();
     else if (stars >= 1) sfxStreak();

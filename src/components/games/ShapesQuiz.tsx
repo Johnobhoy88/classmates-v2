@@ -9,10 +9,7 @@ import { useState } from 'react';
 import { SHAPES_DATA, type ShapesLevel } from '../../game/content/shapes-data';
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
 import { LevelSelect } from '../shared/LevelSelect';
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a;
-}
+import { shuffle } from '../../utils/shuffle';
 
 function buildQuestions(level: ShapesLevel): QuizQuestion[] {
   return shuffle([...SHAPES_DATA[level]]).slice(0, 10).map((entry) => ({

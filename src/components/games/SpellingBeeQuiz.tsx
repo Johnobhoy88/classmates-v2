@@ -10,10 +10,9 @@ import { SPELLING } from '../../game/content/spelling-data';
 import { sfxCorrect, sfxWrong, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { shuffle } from '../../utils/shuffle';
 
 // Faithful port of V1 Spelling Bee: endless mode, 3 lives, type to spell
-
-function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 export function SpellingBeeQuiz({ onExit }: { onExit: () => void }) {
   const { pupil } = useAuth();

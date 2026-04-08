@@ -10,6 +10,7 @@ import { genMathQuestion } from '../../game/content/maths-data';
 import { sfxCorrect, sfxWrong, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { calcStars } from '../../utils/stars';
 
 // Faithful port of V1 Head to Head: 2-player split-screen maths race, first to 10
 
@@ -46,7 +47,7 @@ export function HeadToHead({ onExit }: { onExit: () => void }) {
       const winnerScore = isP1 ? p1.score : p2.score;
       const totalAnswered = p1.score + p2.score;
       const pct = totalAnswered > 0 ? winnerScore / target : 0;
-      const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+      const stars = calcStars(pct);
       recordGameResult({
         pupilId: pupil.id,
         gameId: 'h2h',

@@ -9,6 +9,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { sfxCorrect, sfxWrong, sfxClick, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { shuffle } from '../../utils/shuffle';
 
 // Faithful port of V1 Memory Match: flip cards to find pairs
 
@@ -18,8 +19,6 @@ const ALL_PAIRS = [
   ['big','small'],['hot','cold'],['up','down'],['fast','slow'],['happy','sad'],['day','night'],
   ['half','\u00BD'],['quarter','\u00BC'],['three quarters','\u00BE'],
 ];
-
-function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 interface Card { id: number; text: string; pairId: number; flipped: boolean; matched: boolean; }
 

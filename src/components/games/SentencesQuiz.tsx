@@ -11,10 +11,10 @@ import { sfxCorrect, sfxWrong, sfxClick } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { LevelSelect } from '../shared/LevelSelect';
+import { shuffle } from '../../utils/shuffle';
+import { calcStars } from '../../utils/stars';
 
 // Faithful port of V1 sentence ordering: drag/tap words into correct order
-
-function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 export function SentencesQuiz({ onExit }: { onExit: () => void }) {
   const { pupil } = useAuth();
@@ -73,7 +73,7 @@ export function SentencesQuiz({ onExit }: { onExit: () => void }) {
 
   if (done) {
     const total = sentences.length; const pct = correct / total;
-    const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+    const stars = calcStars(pct);
     if (pupil) recordGameResult({ pupilId: pupil.id, gameId: 'sentence', score: Math.round(pct*100), stars, streak: 0, bestStreak: 0, correct, total });
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-slate-900 to-orange-900/30">

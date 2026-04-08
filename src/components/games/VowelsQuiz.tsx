@@ -11,8 +11,9 @@ import { sfxCorrect, sfxWrong } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { LevelSelect } from '../shared/LevelSelect';
+import { shuffle } from '../../utils/shuffle';
+import { calcStars } from '../../utils/stars';
 
-function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 function removeVowels(w: string) { return w.split('').map(c => 'aeiou'.includes(c) ? '_' : c).join(''); }
 
 export function VowelsQuiz({ onExit }: { onExit: () => void }) {
@@ -54,7 +55,7 @@ export function VowelsQuiz({ onExit }: { onExit: () => void }) {
 
   if (done) {
     const total = words.length; const pct = correct/total;
-    const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+    const stars = calcStars(pct);
     if (pupil) recordGameResult({ pupilId: pupil.id, gameId: 'vowels', score: Math.round(pct*100), stars, streak: 0, bestStreak: streak, correct, total });
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-slate-900 to-cyan-900/30">

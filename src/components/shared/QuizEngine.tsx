@@ -10,6 +10,8 @@ import { sfxCorrect, sfxWrong, sfxStreak, sfxLevelUp } from '../../game/systems/
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { sanitizeHtml } from '../../utils/sanitize';
+import { shuffle } from '../../utils/shuffle';
+import { calcStars } from '../../utils/stars';
 
 // ============================================================
 // QUIZ ENGINE — Shared component for all Tier 1 Duolingo-style games
@@ -56,15 +58,6 @@ interface QuizResult {
   missed: Array<{ w: string; h: string }>;
 }
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 interface QuizEngineProps {
   config: QuizConfig;
   onExit: () => void;
@@ -94,7 +87,7 @@ export function QuizEngine({ config, onExit }: QuizEngineProps) {
 
   const finishGame = useCallback((finalCorrect: number, finalBestStreak: number, finalMissed: Array<{ w: string; h: string }>) => {
     const pct = finalCorrect / total;
-    const stars = pct >= 0.9 ? 3 : pct >= 0.6 ? 2 : pct >= 0.3 ? 1 : 0;
+    const stars = calcStars(pct);
 
     if (stars >= 3) sfxLevelUp();
     else if (stars >= 1) sfxStreak();

@@ -9,6 +9,7 @@ import { useState, useEffect, useRef } from 'react';
 import { sfxCorrect, sfxWrong } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { shuffle } from '../../utils/shuffle';
 
 // Faithful port of V1 Typing Speed: 60 seconds, type as many words as possible
 
@@ -20,8 +21,6 @@ const WORD_BANK = [
   'castle','forest','bridge','garden','school','friend','family','animal','morning','evening',
   'mountain','beautiful','adventure','different','together','Scotland','Highland','knowledge',
 ];
-
-function shuffle<T>(arr: T[]): T[] { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 
 export function TypingQuiz({ onExit }: { onExit: () => void }) {
   const { pupil } = useAuth();

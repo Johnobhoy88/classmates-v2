@@ -9,12 +9,7 @@ import { useState } from 'react';
 import { CAPS_DATA, CONT_DATA, WEATHER_DATA, COMPASS_Q, FLAGS_DATA, SCOT_QUIZ, type GeoQuestion, type GeoLevel } from '../../game/content/geography-data';
 import { QuizEngine, type QuizQuestion } from '../shared/QuizEngine';
 import { LevelSelect } from '../shared/LevelSelect';
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
-  return a;
-}
+import { shuffle } from '../../utils/shuffle';
 
 function geoToQuiz(data: GeoQuestion[]): QuizQuestion[] {
   return shuffle([...data]).slice(0, 10).map((q) => ({

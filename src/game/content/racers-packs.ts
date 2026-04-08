@@ -8,6 +8,8 @@
 // Ported from classmates/src/scripts/domain/southlodge-racers-packs.js
 // All content exactly preserved — every word, sentence, confusion distractor.
 
+import { shuffle } from '../../utils/shuffle';
+
 /* ── Interfaces ─────────────────────────────────────────────── */
 
 export interface WordEntry {
@@ -257,16 +259,6 @@ export const PACKS: Pack[] = [
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
-}
-
-function shuffle<T>(items: T[]): T[] {
-  for (let index = items.length - 1; index > 0; index--) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    const current = items[index];
-    items[index] = items[swapIndex];
-    items[swapIndex] = current;
-  }
-  return items;
 }
 
 /* ── Public API ──────────────────────────────────────────────── */
