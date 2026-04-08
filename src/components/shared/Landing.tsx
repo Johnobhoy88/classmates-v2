@@ -9,11 +9,12 @@ import { useState } from 'react';
 import { TeacherLogin } from '../auth/TeacherLogin';
 import { PupilLogin } from '../auth/PupilLogin';
 import { LandingScene } from './LandingScene';
+import { AnimatePresence, motion } from 'motion/react';
+import { GraduationCap, Users } from 'lucide-react';
 
 function Logo({ size = 180 }: { size?: number }) {
   return (
     <div className="relative inline-block mb-4">
-      {/* Glow */}
       <div
         className="absolute rounded-full animate-pulse"
         style={{
@@ -37,79 +38,109 @@ function Logo({ size = 180 }: { size?: number }) {
   );
 }
 
+const pageVariants = {
+  initial: { opacity: 0, y: 20, scale: 0.97 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -10, scale: 0.97 },
+};
+
 export function Landing() {
   const [mode, setMode] = useState<'select' | 'teacher' | 'pupil'>('select');
 
-  if (mode === 'teacher') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center relative">
-        <LandingScene />
-        <div className="relative z-10 flex flex-col items-center">
-          <Logo size={70} />
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-            <TeacherLogin />
-            <div className="text-center pb-6">
-              <button onClick={() => setMode('select')} className="text-sm text-gray-500 hover:text-gray-700">
-                &larr; Back
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (mode === 'pupil') {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center relative">
-        <LandingScene />
-        <div className="relative z-10 flex flex-col items-center">
-          <Logo size={70} />
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
-            <PupilLogin />
-            <div className="text-center pb-6">
-              <button onClick={() => setMode('select')} className="text-sm text-gray-500 hover:text-gray-700">
-                &larr; Back
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center text-white relative">
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
       <LandingScene />
 
-      <div className="text-center relative z-10 flex flex-col items-center">
-        <Logo size={180} />
-
-        <h1 className="text-5xl font-extrabold tracking-tight mb-2 drop-shadow-lg">
-          Classmates
-        </h1>
-        <p className="text-lg font-medium drop-shadow-md" style={{ color: '#1a5c2e' }}>
-          South Lodge Primary, Invergordon
-        </p>
-        <p className="text-sm mt-1 mb-10 drop-shadow-sm" style={{ color: '#2e7d32' }}>
-          Learning that feels like play
-        </p>
-
-        <div className="flex flex-col gap-4 w-full max-w-xs">
-          <button
-            onClick={() => setMode('pupil')}
-            className="px-8 py-5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl text-xl transition-all hover:scale-[1.02] shadow-lg shadow-emerald-500/30"
+      <AnimatePresence mode="wait">
+        {mode === 'teacher' && (
+          <motion.div
+            key="teacher"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.25 }}
+            className="relative z-10 flex flex-col items-center"
           >
-            I'm a Pupil
-          </button>
-          <button
-            onClick={() => setMode('teacher')}
-            className="px-8 py-4 bg-white/80 hover:bg-white text-emerald-800 font-semibold rounded-2xl text-lg transition-all border border-white/40 shadow-md"
+            <Logo size={70} />
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+              <TeacherLogin />
+              <div className="text-center pb-6">
+                <button onClick={() => setMode('select')} className="text-sm text-gray-500 hover:text-gray-700">
+                  &larr; Back
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {mode === 'pupil' && (
+          <motion.div
+            key="pupil"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.25 }}
+            className="relative z-10 flex flex-col items-center"
           >
-            Teacher Sign In
-          </button>
-        </div>
-      </div>
+            <Logo size={70} />
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4">
+              <PupilLogin />
+              <div className="text-center pb-6">
+                <button onClick={() => setMode('select')} className="text-sm text-gray-500 hover:text-gray-700">
+                  &larr; Back
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {mode === 'select' && (
+          <motion.div
+            key="select"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.25 }}
+            className="text-center relative z-10 flex flex-col items-center text-white"
+          >
+            <Logo size={180} />
+
+            <h1 className="text-5xl font-extrabold tracking-tight mb-2 drop-shadow-lg">
+              Classmates
+            </h1>
+            <p className="text-lg font-medium drop-shadow-md" style={{ color: '#1a5c2e' }}>
+              South Lodge Primary, Invergordon
+            </p>
+            <p className="text-sm mt-1 mb-10 drop-shadow-sm" style={{ color: '#2e7d32' }}>
+              Learning that feels like play
+            </p>
+
+            <div className="flex flex-col gap-4 w-full max-w-xs">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setMode('pupil')}
+                className="px-8 py-5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-2xl text-xl shadow-lg shadow-emerald-500/30 flex items-center justify-center gap-3"
+              >
+                <Users className="w-6 h-6" />
+                I'm a Pupil
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setMode('teacher')}
+                className="px-8 py-4 bg-white/80 hover:bg-white text-emerald-800 font-semibold rounded-2xl text-lg border border-white/40 shadow-md flex items-center justify-center gap-3"
+              >
+                <GraduationCap className="w-5 h-5" />
+                Teacher Sign In
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="fixed bottom-3 right-4 z-10 text-right">
         <p className="text-xs font-medium text-white/80 drop-shadow-md">
