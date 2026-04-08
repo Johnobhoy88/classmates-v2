@@ -17,6 +17,7 @@ type AuthState = {
   signInWithMagicLink: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   loginAsPupil: (classCode: string, pin: string) => Promise<{ error: string | null }>;
+  loginAsGuest: () => void;
   logoutPupil: () => void;
 };
 
@@ -121,6 +122,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: null };
   }
 
+  function loginAsGuest() {
+    const guest: Pupil = {
+      id: 'guest',
+      teacher_id: 'guest',
+      display_name: 'Guest',
+      pin: '0000',
+      avatar_config: {},
+      created_at: new Date().toISOString(),
+    };
+    setPupil(guest);
+    sessionStorage.setItem('classmates_pupil', JSON.stringify(guest));
+  }
+
   function logoutPupil() {
     setPupil(null);
     sessionStorage.removeItem('classmates_pupil');
@@ -136,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signInWithMagicLink,
         signOut,
         loginAsPupil,
+        loginAsGuest,
         logoutPupil,
       }}
     >

@@ -10,7 +10,8 @@ import { TeacherLogin } from '../auth/TeacherLogin';
 import { PupilLogin } from '../auth/PupilLogin';
 import { LandingScene } from './LandingScene';
 import { AnimatePresence, motion } from 'motion/react';
-import { GraduationCap, Users } from 'lucide-react';
+import { GraduationCap, Users, Gamepad2 } from 'lucide-react';
+import { useAuth } from '../auth/AuthProvider';
 
 function Logo({ size = 180 }: { size?: number }) {
   return (
@@ -45,6 +46,7 @@ const pageVariants = {
 };
 
 export function Landing() {
+  const { loginAsGuest } = useAuth();
   const [mode, setMode] = useState<'select' | 'teacher' | 'pupil'>('select');
 
   return (
@@ -136,6 +138,15 @@ export function Landing() {
               >
                 <GraduationCap className="w-5 h-5" />
                 Teacher Sign In
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={loginAsGuest}
+                className="px-8 py-3 bg-white/20 hover:bg-white/30 text-white/80 font-medium rounded-2xl text-sm border border-white/20 flex items-center justify-center gap-2"
+              >
+                <Gamepad2 className="w-4 h-4" />
+                Guest Play
               </motion.button>
             </div>
           </motion.div>
