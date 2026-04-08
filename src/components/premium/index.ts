@@ -11,3 +11,8 @@ export { PremiumLevelSelect } from './LevelSelect';
 export { useConfetti, ConfettiLayer } from './Confetti';
 export { STANDARD_LEVELS } from './themes';
 export type { ThemeState, LevelDef, GameResult } from './themes';
+export {
+  sfxCoin, sfxBuzz, sfxLevelUp, sfxComplete, sfxFail, sfxHeartLost, sfxClick, sfxFanfare,
+  startMusic, stopMusic, updateMusic, getScale,
+  THEME_FOREST, THEME_OCEAN,
+} from './AudioEngine';

@@ -20,13 +20,12 @@ import { useAuth } from '../auth/AuthProvider';
 import { calcStars } from '../../utils/stars';
 import { shuffle } from '../../utils/shuffle';
 import { SpellingForestBg } from './SpellingForestBg';
-import {
-  startAmbient, stopAmbient, updateAmbientState, resetScale,
-  sfxCorrectLetter, sfxWrongLetter, sfxWordComplete, sfxWordFailed,
-  sfxStreak, sfxGameComplete, sfxKeyPress, sfxHeartLost,
-} from './SpellingAudio';
 import type { ForestState } from './SpellingForestBg';
-import { GameHeader, ResultsScreen, PremiumLevelSelect, useConfetti, ConfettiLayer } from '../premium';
+import {
+  GameHeader, ResultsScreen, PremiumLevelSelect, useConfetti, ConfettiLayer,
+  sfxCoin, sfxBuzz, sfxComplete, sfxFail, sfxLevelUp, sfxHeartLost, sfxClick, sfxFanfare,
+  startMusic, stopMusic, updateMusic, getScale, THEME_FOREST,
+} from '../premium';
 import type { LevelDef, GameResult } from '../premium';
 
 const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
@@ -85,25 +84,23 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     }
   }, [forestEvent]);
 
-  // Update ambient audio reactively
+  // Update music reactively
   useEffect(() => {
-    if (game && audioOn) {
-      updateAmbientState(game.lives / game.maxLives, game.streak);
-    }
-  }, [game?.lives, game?.streak, audioOn]);
+    if (game && audioOn) updateMusic(game.streak);
+  }, [game?.streak, audioOn]);
 
-  // Start ambient on level select
+  // Start music on level select
   useEffect(() => {
-    if (level && audioOn) startAmbient(level);
-    return () => stopAmbient();
+    if (level && audioOn) startMusic(THEME_FOREST);
+    return () => stopMusic();
   }, [level, audioOn]);
 
   const toggleAudio = useCallback(() => {
     setAudioOn(prev => {
-      if (prev) stopAmbient(); else if (level) startAmbient(level);
+      if (prev) stopMusic(); else startMusic(THEME_FOREST);
       return !prev;
     });
-  }, [level]);
+  }, []);
 
   const startGame = useCallback((lv: SpellingLevel) => {
     const lvData = LEVELS.find(l => l.level === lv)!;
@@ -128,7 +125,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     if (!game || game.wordState !== 'playing') return;
     if (game.usedKeys.has(ch)) return;
 
-    if (audioOn) sfxKeyPress();
+    if (audioOn) sfxClick();
 
     const word = game.word;
     let found = false;
@@ -144,7 +141,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     newUsed.set(ch, found ? 'correct' : 'wrong');
 
     if (found) {
-      if (audioOn) sfxCorrectLetter();
+      if (audioOn) sfxCoin();
       setForestEvent('correct');
       const allRevealed = newRevealed.every(Boolean);
       if (allRevealed) {
@@ -160,8 +157,8 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
         // Perfect word toast (no wrong guesses)
         if (game.usedKeys.size === new Set(game.word).size) toast('Perfect spell! \u2728', { duration: 2000 });
         if (audioOn) {
-          if (newStreak >= 5) sfxStreak();
-          else sfxWordComplete();
+          if (newStreak >= 5) sfxLevelUp(getScale());
+          else sfxComplete(getScale());
         }
         burstConfetti();
 
@@ -175,7 +172,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
       }
     } else {
       // Wrong letter
-      if (audioOn) sfxWrongLetter();
+      if (audioOn) sfxBuzz();
       setForestEvent('wrong');
       const newLives = game.lives - 1;
       if (audioOn) sfxHeartLost();
@@ -184,7 +181,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
 
       if (newLives <= 0) {
         // Word failed
-        if (audioOn) sfxWordFailed();
+        if (audioOn) sfxFail(getScale());
         setForestEvent('wordFailed');
         const newMissed = [...game.missed, { w: game.word, h: game.words[game.idx].h }];
         setGame(g => g ? {
@@ -219,11 +216,11 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           const pct = game.correct / game.total;
           const stars = calcStars(pct);
           setForestEvent('gameComplete');
-          if (audioOn) sfxGameComplete();
+          if (audioOn) sfxFanfare(getScale());
           setResult({ correct: game.correct, total: game.total, stars, bestStreak: game.bestStreak, missed: game.missed });
         } else {
           const w = game.words[nextIdx].w.toLowerCase();
-          resetScale();
+
           setGame(g => g ? {
             ...g, idx: nextIdx, word: w,
             revealed: new Array(w.length).fill(false),
@@ -279,7 +276,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
         <ResultsScreen
           result={{ ...result, missed: missedWithEmoji }}
           onPlayAgain={() => { setGame(null); setResult(null); setLevel(null); }}
-          onExit={() => { stopAmbient(); onExit(); }}
+          onExit={() => { stopMusic(); onExit(); }}
         />
       </div>
     );
@@ -305,7 +302,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           lives={game.lives} maxLives={game.maxLives}
           idx={game.idx} total={game.total}
           audioOn={audioOn} onToggleAudio={toggleAudio}
-          onQuit={() => { stopAmbient(); onExit(); }}
+          onQuit={() => { stopMusic(); onExit(); }}
           quitTitle="Leave the forest?"
         />
 

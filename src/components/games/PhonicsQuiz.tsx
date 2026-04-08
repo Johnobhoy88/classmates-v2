@@ -19,11 +19,10 @@ import { calcStars } from '../../utils/stars';
 import { shuffle } from '../../utils/shuffle';
 import { PhonicsOceanBg } from './PhonicsOceanBg';
 import {
-  startAmbient, stopAmbient, resetScale,
-  sfxCorrect, sfxWrong, sfxWordComplete, sfxWordFailed,
-  sfxStreak, sfxGameComplete,
-} from './PhonicsAudio';
-import { GameHeader, ResultsScreen, PremiumLevelSelect, useConfetti, ConfettiLayer } from '../premium';
+  GameHeader, ResultsScreen, PremiumLevelSelect, useConfetti, ConfettiLayer,
+  sfxCoin, sfxBuzz, sfxComplete, sfxFail, sfxLevelUp, sfxFanfare, sfxHeartLost,
+  startMusic, stopMusic, updateMusic, getScale, THEME_OCEAN,
+} from '../premium';
 import type { ThemeState, LevelDef, GameResult } from '../premium';
 
 const LEVELS: LevelDef[] = [
@@ -80,12 +79,16 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
   }, [themeEvent]);
 
   useEffect(() => {
-    if (level && audioOn) startAmbient();
-    return () => stopAmbient();
+    if (level && audioOn) startMusic(THEME_OCEAN);
+    return () => stopMusic();
   }, [level, audioOn]);
 
+  useEffect(() => {
+    if (audioOn) updateMusic(streak);
+  }, [streak, audioOn]);
+
   const toggleAudio = useCallback(() => {
-    setAudioOn(prev => { if (prev) stopAmbient(); else startAmbient(); return !prev; });
+    setAudioOn(prev => { if (prev) stopMusic(); else startMusic(THEME_OCEAN); return !prev; });
   }, []);
 
   function startGame(lv: PhonicsLevel) {
@@ -95,7 +98,7 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
     setIdx(0); setCorrect(0); setStreak(0); setBestStreak(0);
     setMissed([]); setLives(lvData.lives); setMaxLives(lvData.lives);
     setAnswered(null); setResult(null); savedRef.current = false;
-    resetScale();
+
   }
 
   function selectAnswer(option: string) {
@@ -110,7 +113,7 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
       setStreak(newStreak);
       setBestStreak(bs => Math.max(bs, newStreak));
       setThemeEvent('correct');
-      if (audioOn) sfxCorrect();
+      if (audioOn) sfxCoin();
       if (newStreak === 3) toast('3 in a row! \u{1F525}', { duration: 2000 });
       else if (newStreak === 5) toast('5 streak! \u{1F525}\u{1F525}', { duration: 2500 });
     } else {
@@ -118,7 +121,7 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
       setLives(l => l - 1);
       setMissed(m => [...m, { w: q.sound, h: `"${q.sound}" → ${q.answer}` }]);
       setThemeEvent('wrong');
-      if (audioOn) sfxWrong();
+      if (audioOn) { sfxBuzz(); sfxHeartLost(); }
     }
 
     // Advance after delay
@@ -133,21 +136,21 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
         const stars = calcStars(pct);
         const finalBestStreak = isCorrect ? Math.max(bestStreak, streak + 1) : bestStreak;
         setThemeEvent('gameComplete');
-        if (audioOn) sfxGameComplete();
+        if (audioOn) sfxFanfare(getScale());
         burstConfetti();
         setResult({ correct: finalCorrect, total: questions.length, stars, bestStreak: finalBestStreak, missed: isCorrect ? missed : [...missed, { w: q.answer, h: `"${q.sound}" → ${q.answer}` }] });
       } else {
         if (isCorrect) {
           setThemeEvent('wordComplete');
-          if (audioOn) { if (streak + 1 >= 5) sfxStreak(); else sfxWordComplete(); }
+          if (audioOn) { if (streak + 1 >= 5) sfxLevelUp(getScale()); else sfxComplete(getScale()); }
           burstConfetti();
         } else {
           setThemeEvent('wordFailed');
-          if (audioOn) sfxWordFailed();
+          if (audioOn) sfxFail(getScale());
         }
         setIdx(nextIdx);
         setAnswered(null);
-        resetScale();
+    
       }
     }, isCorrect ? 600 : 1200);
   }
@@ -192,7 +195,7 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
         <ResultsScreen
           result={result}
           onPlayAgain={() => { setQuestions([]); setResult(null); setLevel(null); }}
-          onExit={() => { stopAmbient(); onExit(); }}
+          onExit={() => { stopMusic(); onExit(); }}
         />
       </div>
     );
@@ -217,7 +220,7 @@ export function PhonicsQuiz({ onExit }: { onExit: () => void }) {
           lives={lives} maxLives={maxLives}
           idx={idx} total={questions.length}
           audioOn={audioOn} onToggleAudio={toggleAudio}
-          onQuit={() => { stopAmbient(); onExit(); }}
+          onQuit={() => { stopMusic(); onExit(); }}
           quitTitle="Leave the reef?"
         />
 
