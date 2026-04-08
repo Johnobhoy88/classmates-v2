@@ -12,14 +12,35 @@ Built by John McMillan (HighlandAI). Free, privacy-first, no ads, no tracking.
 
 ## Tech Stack
 
+### Core
 - **Frontend:** React 19, TypeScript 6, Vite 8, Tailwind CSS 4
-- **Game engines:** Phaser 3 (spelling), Three.js (3D racing)
 - **Database:** Supabase (PostgreSQL) with Row Level Security
 - **Offline:** Dexie (IndexedDB), auto-sync every 30 seconds
 - **Auth:** Supabase magic link (teachers), class code + 4-digit PIN (pupils)
 - **Audio:** Procedural Web Audio API (zero audio files)
 - **Hosting:** Vercel (free tier)
 - **Cost:** £0/month
+
+### Game Engines (all installed, code-split, loaded on demand)
+- **Phaser 3** — immersive spelling game (existing)
+- **Three.js** — 3D racing game (existing)
+- **Kaplay.js** — 2D platformer/puzzle games (MIT, ~200KB)
+- **LittleJS** — ultra-tiny pixel art engine (MIT, ~10KB)
+- **Nostalgist.js** — browser RetroArch emulator for GB ROMs (MIT)
+- **GDExporter** — CLI for exporting GDevelop games to HTML5 (dev dependency)
+
+### UI/UX Libraries (all installed)
+- **Motion** (was framer-motion) — page transitions, animations, game menus (MIT)
+- **Lucide React** — 1,500+ SVG icons, tree-shakable (ISC)
+- **Radix UI** — accessible dialog, tooltip, dropdown primitives (MIT)
+- **Sonner** — toast notifications, 1KB (MIT)
+- **Recharts** — lightweight charts for teacher analytics (MIT)
+- **vite-plugin-pwa** — service worker, offline install, asset caching
+
+### Level Design (JSON-based, Claude can write directly)
+- **LDtk** format — level JSON for platformers (Claude writes .ldtk files)
+- **Tiled** format — tilemap JSON for 2D games (Claude writes .tmj files)
+- **Kenney assets** — 60,000+ sprites/tiles/audio (CC0, buy All-in-1 for £16)
 
 ## Build & Run
 
