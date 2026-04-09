@@ -653,10 +653,7 @@ export class QuizWorldScene extends Phaser.Scene {
   private onCorrect() {
     const { width: W, height: H } = this.scale;
 
-    // Camera flash (green tint)
-    this.cameras.main.flash(180, 50, 200, 80);
-
-    // Confetti burst from center
+    // Confetti burst from center (no camera flash — save that for streaks/completion)
     this.burstEmitters.forEach(e => {
       e.setPosition(W / 2, H * 0.4);
       e.explode(4);
