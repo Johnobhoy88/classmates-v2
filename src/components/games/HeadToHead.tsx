@@ -3,16 +3,28 @@
  * © 2026 John McMillan (HighlandAI). All rights reserved.
  * Licensed under CC BY-NC 4.0
  * https://github.com/Johnobhoy88/classmates-v2
+ *
+ * HEAD TO HEAD — Premium: 2-player split-screen maths race, first to 10.
+ * Motion animations, AudioEngine, Phaser cosmos background, Confetti.
+ * CfE: MNU 1-02a (add/subtract), MNU 1-03a (multiply/divide)
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { motion } from 'motion/react';
+import { toast } from 'sonner';
 import { genMathQuestion } from '../../game/content/maths-data';
-import { sfxCorrect, sfxWrong, sfxLevelUp } from '../../game/systems/AudioSystem';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
+import { QuizWorld } from '../shared/QuizWorld';
+import { GameBackButton } from '../shared/GameNav';
 import { calcStars } from '../../utils/stars';
-
-// Faithful port of V1 Head to Head: 2-player split-screen maths race, first to 10
+import {
+  useConfetti, ConfettiLayer,
+  sfxCoin, sfxBuzz, sfxFanfare,
+  startMusic, stopMusic, getScale,
+  THEME_COSMOS,
+} from '../premium';
+import type { ThemeState } from '../premium';
 
 interface PlayerState {
   name: string;
@@ -34,32 +46,35 @@ export function HeadToHead({ onExit }: { onExit: () => void }) {
   const [p1, setP1] = useState<PlayerState>({ name: 'Player 1', score: 0, question: newQuestion(), input: '', flash: null });
   const [p2, setP2] = useState<PlayerState>({ name: 'Player 2', score: 0, question: newQuestion(), input: '', flash: null });
   const [winner, setWinner] = useState<string | null>(null);
+  const [muted, setMuted] = useState(false);
+  const [themeState, setThemeState] = useState<ThemeState>({ progress: 0, streak: 0, livesRatio: 1, event: 'none' });
+  const { burst, pieces } = useConfetti();
   const target = 10;
   const p1Ref = useRef<HTMLInputElement>(null);
   const p2Ref = useRef<HTMLInputElement>(null);
   const savedRef = useRef(false);
+  const musicStarted = useRef(false);
 
-  // Save result once when winner is determined
+  useEffect(() => () => { stopMusic(); musicStarted.current = false; }, []);
+
   useEffect(() => {
     if (winner && pupil && !savedRef.current) {
       savedRef.current = true;
+      stopMusic(); musicStarted.current = false;
       const isP1 = winner === p1.name;
       const winnerScore = isP1 ? p1.score : p2.score;
-      const totalAnswered = p1.score + p2.score;
-      const pct = totalAnswered > 0 ? winnerScore / target : 0;
+      const pct = winnerScore / target;
       const stars = calcStars(pct);
+      if (!muted) sfxFanfare(getScale());
+      burst(30);
       recordGameResult({
-        pupilId: pupil.id,
-        gameId: 'h2h',
-        score: Math.round(pct * 100),
-        stars,
-        streak: 0,
-        bestStreak: Math.max(p1.score, p2.score),
-        correct: winnerScore,
-        total: target,
+        pupilId: pupil.id, gameId: 'h2h',
+        score: Math.round(pct * 100), stars,
+        streak: 0, bestStreak: Math.max(p1.score, p2.score),
+        correct: winnerScore, total: target,
       });
     }
-  }, [winner, pupil, p1, p2]);
+  }, [winner, pupil, p1, p2, muted]);
 
   function start() {
     savedRef.current = false;
@@ -67,8 +82,8 @@ export function HeadToHead({ onExit }: { onExit: () => void }) {
     const n2 = name2.trim() || 'Player 2';
     setP1({ name: n1, score: 0, question: newQuestion(), input: '', flash: null });
     setP2({ name: n2, score: 0, question: newQuestion(), input: '', flash: null });
-    setStarted(true);
-    setWinner(null);
+    setStarted(true); setWinner(null);
+    if (!muted && !musicStarted.current) { startMusic(THEME_COSMOS); musicStarted.current = true; }
     setTimeout(() => p1Ref.current?.focus(), 100);
   }
 
@@ -80,69 +95,91 @@ export function HeadToHead({ onExit }: { onExit: () => void }) {
     if (isNaN(val)) return;
 
     if (val === p.question.answer) {
-      const newScore = p.score + 1;
-      sfxCorrect();
-      if (newScore >= target) {
-        setP({ ...p, score: newScore, flash: 'correct', input: '' });
+      const ns = p.score + 1;
+      if (!muted) sfxCoin();
+      if (ns >= target) {
+        setP({ ...p, score: ns, flash: 'correct', input: '' });
         setWinner(p.name);
-        sfxLevelUp();
+        toast(`${p.name} wins! 🏆`);
         return;
       }
-      setP({ ...p, score: newScore, question: newQuestion(), input: '', flash: 'correct' });
+      setP({ ...p, score: ns, question: newQuestion(), input: '', flash: 'correct' });
+      setThemeState({ progress: ns / target, streak: ns, livesRatio: 1, event: 'correct' });
       setTimeout(() => setP(prev => ({ ...prev, flash: null })), 300);
     } else {
-      sfxWrong();
+      if (!muted) sfxBuzz();
       setP({ ...p, input: '', flash: 'wrong' });
-      setTimeout(() => setP(prev => ({ ...prev, flash: null })), 300);
+      setThemeState(s => ({ ...s, event: 'wrong' }));
+      setTimeout(() => { setP(prev => ({ ...prev, flash: null })); setThemeState(s => ({ ...s, event: 'none' })); }, 300);
     }
   }
 
   if (!started) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-to-b from-slate-900 to-red-900/20">
-        <button onClick={onExit} className="absolute top-4 left-4 text-white/40 hover:text-white/70 text-sm px-3 py-2 rounded-lg hover:bg-white/5">&larr; Back</button>
-        <h2 className="text-2xl font-bold text-white mb-6">Head to Head</h2>
-        <p className="text-white/50 text-sm mb-4">2-player maths race — first to {target} wins!</p>
-        <div className="flex gap-4 mb-6">
-          <input value={name1} onChange={e => setName1(e.target.value)} placeholder="Player 1" className="px-4 py-3 rounded-xl bg-white/10 border border-blue-400/30 text-white text-center w-36 focus:outline-none focus:border-blue-400" />
-          <span className="text-white/30 text-2xl font-bold self-center">vs</span>
-          <input value={name2} onChange={e => setName2(e.target.value)} placeholder="Player 2" className="px-4 py-3 rounded-xl bg-white/10 border border-red-400/30 text-white text-center w-36 focus:outline-none focus:border-red-400" />
+      <div className="min-h-screen relative overflow-hidden">
+        <QuizWorld theme="cosmos" state={themeState} />
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+          <GameBackButton onClick={onExit} />
+          <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center">
+            <div className="text-5xl mb-3">⚔️</div>
+            <h2 className="text-2xl font-bold text-white mb-2">Head to Head</h2>
+            <p className="text-white/50 text-sm mb-6">2-player maths race — first to {target} wins!</p>
+            <div className="flex gap-4 mb-6">
+              <input value={name1} onChange={e => setName1(e.target.value)} placeholder="Player 1"
+                className="px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-blue-400/30 text-white text-center w-36 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30" />
+              <span className="text-white/30 text-2xl font-bold self-center">vs</span>
+              <input value={name2} onChange={e => setName2(e.target.value)} placeholder="Player 2"
+                className="px-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-red-400/30 text-white text-center w-36 focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-400/30" />
+            </div>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={start}
+              className="px-10 py-4 bg-gradient-to-r from-blue-500 to-red-500 text-white font-bold rounded-2xl text-lg shadow-lg">
+              Start!
+            </motion.button>
+          </motion.div>
         </div>
-        <button onClick={start} className="px-8 py-4 bg-gradient-to-r from-blue-500 to-red-500 text-white font-bold rounded-2xl text-lg active:scale-95">Start!</button>
       </div>
     );
   }
 
   if (winner) {
-    const isP1 = winner === p1.name;
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: `linear-gradient(to bottom, #0f172a, ${isP1 ? '#1e3a8a' : '#7f1d1d'}40)` }}>
-        <div className="text-6xl mb-4">{'\u{1F3C6}'}</div>
-        <h2 className="text-3xl font-bold text-white mb-2">{winner} WINS!</h2>
-        <p className="text-white/50 mb-6">{p1.score} - {p2.score}</p>
-        <div className="flex gap-3">
-          <button onClick={() => { setStarted(false); setWinner(null); }} className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/20">Play Again</button>
-          <button onClick={onExit} className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20">Back</button>
+      <div className="min-h-screen relative overflow-hidden">
+        <QuizWorld theme="cosmos" state={themeState} />
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
+          <motion.div initial={{ scale: 0, rotate: -10 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: 'spring', damping: 8 }} className="text-7xl mb-4">🏆</motion.div>
+          <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-3xl font-bold text-white mb-2">{winner} WINS!</motion.h2>
+          <p className="text-white/50 mb-6">{p1.score} - {p2.score}</p>
+          <div className="flex gap-3">
+            <motion.button whileTap={{ scale: 0.95 }} onClick={() => { setStarted(false); setWinner(null); }}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl border border-white/20">Play Again</motion.button>
+            <motion.button whileTap={{ scale: 0.95 }} onClick={onExit}
+              className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl border border-white/20">Back</motion.button>
+          </div>
         </div>
+        <ConfettiLayer pieces={pieces} />
       </div>
     );
   }
 
   function renderSide(p: PlayerState, setP: React.Dispatch<React.SetStateAction<PlayerState>>, player: 1 | 2, color: string, ref: React.RefObject<HTMLInputElement | null>) {
     return (
-      <div className={`flex-1 flex flex-col items-center justify-center p-4 border-${player === 1 ? 'r' : 'l'} border-white/10`}>
+      <div className={`flex-1 flex flex-col items-center justify-center p-4 ${player === 1 ? 'border-r border-white/10' : ''}`}>
         <p className="text-white/60 text-sm font-bold mb-1">{p.name}</p>
-        <p className={`text-3xl font-bold mb-4`} style={{ color }}>{p.score}/{target}</p>
-        <p className="text-white text-2xl font-bold mb-4">{p.question.text}</p>
-        <input
+        <motion.p animate={{ scale: p.flash === 'correct' ? [1, 1.3, 1] : 1 }} className="text-3xl font-bold mb-4" style={{ color }}>
+          {p.score}/{target}
+        </motion.p>
+        <motion.p key={p.question.text} initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="text-white text-2xl font-bold mb-4">{p.question.text}</motion.p>
+        <motion.input
           ref={ref}
           type="number"
           inputMode="numeric"
           value={p.input}
           onChange={e => setP(prev => ({ ...prev, input: e.target.value }))}
           onKeyDown={e => { if (e.key === 'Enter') checkAnswer(player); }}
-          className={`w-24 px-3 py-3 rounded-xl text-center text-2xl font-bold bg-white/10 border-2 text-white focus:outline-none ${
-            p.flash === 'correct' ? 'border-emerald-400' : p.flash === 'wrong' ? 'border-red-400' : 'border-white/20'
+          animate={p.flash === 'wrong' ? { x: [-5, 5, -3, 3, 0] } : {}}
+          className={`w-24 px-3 py-3 rounded-xl text-center text-2xl font-bold bg-white/10 backdrop-blur-sm border-2 text-white focus:outline-none transition-colors ${
+            p.flash === 'correct' ? 'border-emerald-400 bg-emerald-500/10' : p.flash === 'wrong' ? 'border-red-400 bg-red-500/10' : 'border-white/20'
           }`}
           autoComplete="off"
         />
@@ -151,15 +188,20 @@ export function HeadToHead({ onExit }: { onExit: () => void }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 to-slate-800">
-      <div className="px-4 pt-3 flex items-center justify-between">
-        <button onClick={onExit} className="text-white/40 hover:text-white/70 text-sm px-3 py-2 rounded-lg hover:bg-white/5">&larr; Quit</button>
-        <span className="text-white/30 text-sm">First to {target}</span>
+    <div className="min-h-screen relative overflow-hidden">
+      <QuizWorld theme="cosmos" state={themeState} />
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <div className="px-4 pt-3 flex items-center justify-between">
+          <GameBackButton onClick={() => { stopMusic(); musicStarted.current = false; onExit(); }} />
+          <span className="text-white/30 text-sm">First to {target}</span>
+          <button onClick={() => setMuted(!muted)} className="p-2 text-white/40 hover:text-white/70">{muted ? '🔇' : '🔊'}</button>
+        </div>
+        <div className="flex-1 flex">
+          {renderSide(p1, setP1, 1, '#3b82f6', p1Ref)}
+          {renderSide(p2, setP2, 2, '#ef4444', p2Ref)}
+        </div>
       </div>
-      <div className="flex-1 flex">
-        {renderSide(p1, setP1, 1, '#3b82f6', p1Ref)}
-        {renderSide(p2, setP2, 2, '#ef4444', p2Ref)}
-      </div>
+      <ConfettiLayer pieces={pieces} />
     </div>
   );
 }
