@@ -1,0 +1,25 @@
+; Classmates — Maths World (Godot 4.4 proof-of-concept)
+; © 2026 John McMillan (HighlandAI). All rights reserved.
+; Licensed under CC BY-NC 4.0
+
+config_version=5
+
+[application]
+
+config/name="Maths World"
+config/features=PackedStringArray("4.4")
+run/main_scene="res://scenes/main.tscn"
+
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+anti_aliasing/quality/msaa_3d=1
+environment/defaults/default_clear_color=Color(0.2, 0.6, 0.9, 1)

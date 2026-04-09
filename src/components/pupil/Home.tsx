@@ -47,6 +47,7 @@ const TypingQuiz = lazy(() => import('../games/TypingQuiz').then(m => ({ default
 const DailyChallenge = lazy(() => import('../games/DailyChallenge').then(m => ({ default: m.DailyChallenge })));
 const HeadToHead = lazy(() => import('../games/HeadToHead').then(m => ({ default: m.HeadToHead })));
 const SouthlodgeRacers = lazy(() => import('../games/SouthlodgeRacers').then(m => ({ default: m.SouthlodgeRacers })));
+const MathsWorld = lazy(() => import('../games/MathsWorld'));
 
 // Lazy wrappers for geo quiz variants
 function CapitalsQuiz(props: { onExit: () => void }) { return <Suspense fallback={<GameLoading />}><GeoQuizLazy variant="capitals" {...props} /></Suspense>; }
@@ -88,6 +89,7 @@ const QUIZ_GAMES: Record<string, ComponentType<{ onExit: () => void }>> = {
   anagram: AnagramQuiz, sentence: SentencesQuiz,
   memorymatch: MemoryMatchQuiz, spellingbee: SpellingBeeQuiz,
   typing: TypingQuiz, daily: DailyChallenge, h2h: HeadToHead, hdash: SouthlodgeRacers,
+  mathsworld: MathsWorld,
 };
 
 const ALL_PLAYABLE = new Set([...PHASER_GAMES, ...Object.keys(QUIZ_GAMES)]);
@@ -104,7 +106,7 @@ const GAME_ICONS: Record<string, typeof Star> = {
   capitals: Landmark, continents: Globe, weather: CloudSun, compass: Compass,
   flags: Flag, scotquiz: MapPin,
   memorymatch: Brain, spellingbee: Bug, typing: Keyboard, daily: CalendarDays,
-  h2h: Swords, hdash: Car,
+  h2h: Swords, hdash: Car, mathsworld: Gamepad2,
 };
 
 const GAME_CATEGORIES = [
@@ -164,6 +166,7 @@ const GAME_CATEGORIES = [
       { id: 'daily', title: 'Daily Challenge', desc: 'New every day' },
       { id: 'h2h', title: 'Head to Head', desc: '2-player maths race!' },
       { id: 'hdash', title: 'Southlodge Racers', desc: '3D racing!' },
+      { id: 'mathsworld', title: 'Maths World', desc: '3D maths adventure!' },
     ],
   },
 ];
