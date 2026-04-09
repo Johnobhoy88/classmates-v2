@@ -6,291 +6,212 @@ description: |
 
 # Classmates Games Skill
 
-> Build premium-quality educational games for Scottish primary schools (P1–P7)
+> These children deserve games as good as anything on the App Store. Build to that standard.
 
-## ANTI-SANDBAGGING RULES — READ FIRST
+## MANDATORY QUALITY RULES
 
-These engines are **INSTALLED AND WORKING**. Do not:
+You are building for real children at a real school. Every game must feel like it was made by a professional studio, not a demo or proof-of-concept. These rules are non-negotiable:
 
-- Do not suggest "simpler alternatives" when asked to use Phaser/Three.js/Godot
-- Do not claim Godot can't run headless (it can: `godot --headless --export-release`)
-- Do not skip premium components to "keep it simple"
-- Do not suggest Canvas 2D when Phaser is requested
-- Do not avoid Three.js for "performance concerns" without evidence
-- Do not refuse to write Godot .tscn/.gd files
+### USE THE FULL POWER OF EACH ENGINE
 
-**If asked to build with an engine, BUILD WITH THAT ENGINE.**
+**Phaser 3.90** — Do not write basic sprite movement. Use:
+- Arcade or Matter.js physics (collisions, gravity, forces)
+- Tweens for juice (scale bounces, colour flashes, shake effects)
+- Particle emitters (sparks, dust, confetti, magic effects)
+- Camera effects (shake, flash, fade, follow with lerp)
+- Tilemaps (load from Tiled JSON, not hardcoded positions)
+- Sprite sheets with animation frames (not static images)
+- Scene transitions (not instant swaps)
+- Sound manager (even with procedural Web Audio, use Phaser's timing)
 
------
+**Three.js 0.183** — Do not write bare geometry with Lambert materials. Use:
+- PBR materials (MeshStandardMaterial with roughness/metalness)
+- Directional + ambient + point lights with shadows
+- Post-processing (bloom, SSAO, tone mapping)
+- Smooth camera transitions (lerp, quaternion slerp)
+- Instanced meshes for repeated objects (trees, coins, obstacles)
+- Raycasting for click/touch interaction
+- Fog for depth
+- Particle systems (custom or three-stdlib)
 
-## Quick Reference
+**Kaplay.js** — Do not write a basic platformer. Use:
+- Full collision layers and tags
+- Tiled JSON map loading
+- Character animation state machines (idle, run, jump, fall)
+- Parallax scrolling backgrounds (multiple layers)
+- Screen shake and flash effects
+- Custom components for game-specific behaviours
+- Area triggers for dialogue/questions
+- Proper death/respawn mechanics
 
-| Task | Read First |
-|------|-----------|
-| New quiz game | `references/quiz-engine.md` |
-| New 2D game (Phaser/Kaplay/LittleJS) | `references/engines.md` |
-| New 3D game (Three.js) | `references/engines.md` |
-| Godot game | `references/engines.md` -> Godot section |
-| Adding polish | `references/premium-components.md` |
-| CfE curriculum tagging | `references/cfe-curriculum.md` |
-| Quality checklist | `references/quality-gates.md` |
+**LittleJS** — Do not write static sprites. Use:
+- Tile-based rendering at full speed (100K+ sprites)
+- Particle system (built-in, very capable)
+- Sound effects (built-in synth)
+- WebGL mode for maximum performance
+- Persistent world with camera scrolling
+- Destructible terrain if applicable
 
------
+**Godot 4.4** — Do not write a Node2D with _draw() only. Use:
+- Proper scene tree (separate scenes for Player, Enemy, UI, Level)
+- CharacterBody2D or CharacterBody3D with proper physics
+- AnimationPlayer for sprite animations and UI transitions
+- Particle systems (GPUParticles2D/3D)
+- TileMap nodes with autotiling (not manual draw calls)
+- Signals for decoupled communication
+- Exported variables (@export) for tunable parameters
+- Shaders for visual effects (water, glow, dissolve)
+- AudioStreamPlayer with procedural or embedded audio
+- Touch input via InputEventScreenTouch and InputEventScreenDrag
+- Export as HTML5 via: `godot --headless --path <project> --export-release "Web" <output>`
 
-## Platform Overview
+### VISUAL QUALITY BAR
 
-**Repo**: `github.com/Johnobhoy88/classmates-v2` (private)
-**Deploy**: https://classmates-v2.vercel.app (auto-deploy from master)
-**Supabase**: `mtlzmeyppmumbsjhsagq` (eu-west-2)
+Every game must have:
+- **Parallax background** — at least 2 layers of depth
+- **Particle effects** — on correct answer, wrong answer, completion, coin collection
+- **Screen juice** — shake on impact, bounce on collect, flash on damage
+- **Smooth transitions** — between states (menu -> play -> results), not instant
+- **Colour palette** — cohesive, kid-friendly, not random
+- **Character animation** — idle, action states minimum. Never a static circle.
+- **UI polish** — buttons have hover/press states, text has shadows/outlines for readability
 
-### Core Stack
+If the game doesn't look like something a child would choose to play over watching YouTube, it's not done.
 
-```
-React 19.2.4 + TypeScript 6.0.2 + Vite 8.0.4
-Tailwind CSS 4.2.2 + Motion (animations)
-Supabase (cloud) + Dexie (offline IndexedDB)
-```
+### AUDIO QUALITY BAR
 
-### Game Engines (ALL installed)
+Every game must have:
+- **Background music** — procedural or looped, themed to the game world
+- **SFX on every interaction** — tap, correct, wrong, collect, jump, land
+- **Streak audio** — escalating feedback as streaks build
+- **Completion fanfare** — celebratory, proportional to performance
+- **Mute toggle** — always accessible, respects user preference
 
-| Engine | Use Case | Import |
-|--------|----------|--------|
-| **Phaser 3.90** | 2D games, sprites, physics | `import Phaser from 'phaser'` |
-| **Three.js 0.183** | 3D graphics, racing games | `import * as THREE from 'three'` |
-| **Kaplay** | 2D platformers, puzzles | `import kaplay from 'kaplay'` |
-| **LittleJS** | Pixel art, tiny games (~10KB) | `import { engineInit } from 'littlejsengine'` |
-| **Godot 4.4.1** | Complex games, HTML5 export | System binary, iframe embed |
-| **Nostalgist** | Retro emulation | `import { Nostalgist } from 'nostalgist'` |
+Use `src/components/premium/AudioEngine.ts` for React games. For Godot, write equivalent GDScript audio using AudioStreamPlayer and procedural generation.
 
------
+### MOBILE-FIRST
 
-## Workflow: RESEARCH -> DESIGN -> BUILD -> TEST -> REFINE -> DEPLOY
+Every game must work on a school tablet (iPad, Chromebook, Android tablet):
+- **Touch controls only** — no mouse-required interactions
+- **Minimum tap target 44px** — fingers, not cursors
+- **Landscape AND portrait** — or lock to one with clear orientation
+- **No hover states as primary interaction** — hover is enhancement only
+- **On-screen controls** — virtual joystick or tap zones, never keyboard-required
+- **Test at 375px width** — phones are the minimum
 
-### Phase 1: RESEARCH
+### NEVER SHIP
 
-Before writing code:
-
-1. **Check existing games** for patterns:
-   ```bash
-   ls src/components/games/
-   cat src/components/games/SpellingGame.tsx  # Premium example
-   cat src/components/games/SouthlodgeRacers.tsx  # Three.js example
-   ```
-2. **Check premium components**:
-   ```bash
-   ls src/components/premium/
-   ```
-3. **Identify CfE outcomes** — read `references/cfe-curriculum.md`
-4. **Choose engine** based on game type (see `references/engines.md`)
-
-**Gate**: Engine chosen, CfE outcomes identified
-
-### Phase 2: DESIGN
-
-Present to user for approval:
-
-- Game concept and mechanics
-- Visual style (match existing Classmates aesthetic)
-- Content source (curriculum level, word lists, etc.)
-- Premium components to use
-
-**Gate**: User approves design
-
-### Phase 3: BUILD
-
-1. Scaffold the game component
-2. Wire up chosen engine
-3. Implement core gameplay loop
-4. Add premium components (AudioEngine, Confetti, etc.)
-5. Connect to ProgressTracker for XP/streaks
-
-**Gate**: Game compiles with `npm run dev`
-
-### Phase 4: TEST
-
-```bash
-npm run dev
-# Navigate to game in browser
-# Test on mobile viewport (375px width)
-```
-
-Check:
-
-- Game loads without console errors
-- Touch controls work on mobile
-- Audio plays (with user gesture)
-- Progress saves correctly
-- Results screen shows
-
-**Gate**: All checks pass
-
-### Phase 5: REFINE
-
-- Is the visual quality at premium level?
-- Are animations smooth (60fps)?
-- Does audio enhance the experience?
-- Is feedback immediate and satisfying?
-
-**Gate**: Meets quality bar in `references/quality-gates.md`
-
-### Phase 6: DEPLOY
-
-```bash
-npm run lint
-npm run build
-git add -A
-git commit -m "feat(games): add [GameName] - [CfE outcomes]"
-git push origin master
-# Verify at https://classmates-v2.vercel.app
-```
-
-**Gate**: Green Vercel deploy, game accessible
+- A blue screen (test your Godot exports!)
+- A game that requires a keyboard to play
+- A game with no audio feedback
+- A static circle as a "character"
+- Hardcoded positions instead of procedural/tilemap levels
+- Console errors in production
+- A game that doesn't save results to ProgressTracker
+- Placeholder text ("Lorem ipsum", "TODO", "Coming soon")
 
 -----
 
-## Game Architecture Patterns
+## Engine Selection Guide
 
-### Pattern 1: QuizEngine Games (Fastest)
+| Game Type | Engine | Why |
+|-----------|--------|-----|
+| Quiz (4 buttons) | React + QuizEngine | Fast, accessible, lightweight |
+| Quiz with visual theme | React + Motion + Canvas | Premium look, SpellingGame pattern |
+| 2D platformer with sprites | Kaplay or Phaser | Full physics, animation, tilemaps |
+| Pixel art retro game | LittleJS | Tiny bundle, massive sprite count |
+| 3D racing/flying | Three.js | WebGL, PBR materials, shadows |
+| Complex 2D/3D showpiece | Godot 4.4 | Full engine, best visual quality |
+| Retro Game Boy style | GB Studio + Nostalgist | Authentic retro experience |
 
-For vocabulary, spelling, maths facts — use the shared QuizEngine:
-
-```tsx
-import { QuizEngine } from '../shared/QuizEngine';
-
-export function MyQuiz({ onExit }: { onExit: () => void }) {
-  const questions = data.map(item => ({
-    prompt: item.question,
-    display: item.display,
-    answer: item.correct,
-    options: shuffle([item.correct, ...item.distractors])
-  }));
-  return <QuizEngine gameId="my-quiz" title="My Quiz" questions={questions} onExit={onExit} />;
-}
-```
-
-See `references/quiz-engine.md` for full API.
-
-### Pattern 2: Premium Games (React + Motion + Canvas)
-
-For visually rich games with themed backgrounds:
-
-```tsx
-import { GameHeader, ResultsScreen, Confetti } from '../premium';
-import { AudioEngine } from '../premium/AudioEngine';
-```
-
-See SpellingGame.tsx and PhonicsQuiz.tsx for working examples.
-
-### Pattern 3: Phaser Games (2D with physics)
-
-```tsx
-import { GameShell } from '../shared/GameShell';
-// Scene class extends Phaser.Scene
-export function MyGame({ onExit }: { onExit: () => void }) {
-  return <GameShell scene={MyScene} onExit={onExit} />;
-}
-```
-
-### Pattern 4: Three.js Games (3D)
-
-See SouthlodgeRacers.tsx — standalone React component with THREE scene, renderer, animation loop.
-
-### Pattern 5: Godot Games (HTML5 export)
-
-Godot projects live in `src/godot/[project-name]/` and export to `public/godot/[project-name]/`.
-
-```tsx
-// React wrapper with iframe + postMessage bridge
-export default function GodotGame({ onExit }: { onExit: () => void }) {
-  useEffect(() => {
-    const handler = (event: MessageEvent) => {
-      if (event.data?.type === 'godot-game-result') {
-        recordGameResult({ ...event.data });
-      }
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
-  }, []);
-  return <iframe src="/godot/my-game/index.html" className="w-full h-screen" />;
-}
-```
-
-Export command: `godot --headless --path src/godot/my-game --export-release "Web" public/godot/my-game/index.html`
+**When in doubt, use the most powerful engine that fits.** A Kaplay platformer with proper tilemaps and particle effects beats a Canvas2D hack every time.
 
 -----
 
-## Premium Components (ALWAYS USE)
+## Architecture Patterns
 
-Every game should use these from `src/components/premium/`:
+### Pattern 1: QuizEngine (for quiz-type games)
+- Import data from `src/game/content/`
+- Pass to `QuizEngine` component
+- It handles scoring, streaks, results, progress saving
 
-| Component | Purpose | Required? |
-|-----------|---------|-----------|
-| `AudioEngine` | Procedural SFX + dynamic music | Yes |
-| `Confetti` | Celebration particles | On wins |
-| `GameHeader` | Quit dialog + tooltip hearts | Yes |
-| `ResultsScreen` | Shared results with Motion | Yes |
-| `themes.ts` | Game theme definitions | Yes |
+### Pattern 2: Premium React Games (SpellingGame, PhonicsQuiz pattern)
+- Canvas background component (animated world)
+- Motion animations for UI elements
+- AudioEngine for SFX + music
+- GameHeader (quit dialog, hearts, progress)
+- ResultsScreen (stars, stats, play again)
+- Confetti on completion
 
-See `references/premium-components.md` for full API.
+### Pattern 3: Engine Games (Phaser/Kaplay/LittleJS)
+- React wrapper component with ref for canvas mount
+- Engine handles rendering and game logic
+- Callback to React for results
+- `recordGameResult()` on completion
 
------
-
-## Scottish CfE Curriculum
-
-All games must tag their curriculum alignment:
-
-```tsx
-const gameMetadata = {
-  level: 'first',  // early | first | second
-  subject: 'literacy',
-  strand: 'spelling',
-  outcomes: ['LIT 1-21a'],
-};
-```
-
-See `references/cfe-curriculum.md` for full outcome lists.
+### Pattern 4: Godot Games
+- Source in `src/godot/[name]/` (.tscn, .gd, project.godot)
+- Export to `public/godot/[name]/` (HTML5/WASM)
+- React wrapper with iframe + postMessage bridge
+- GDScript calls `JavaScriptBridge.eval()` to send results
+- React listens with `window.addEventListener('message', handler)`
+- Export command: `godot --headless --path src/godot/[name] --export-release "Web" public/godot/[name]/index.html`
 
 -----
 
-## File Locations
+## Progress Integration
 
+EVERY game, regardless of engine, must call `recordGameResult()`:
+
+```typescript
+recordGameResult({
+  pupilId: string,
+  gameId: string,       // unique, matches Home.tsx routing
+  score: number,        // 0-100 percentage
+  stars: number,        // 0-3 (>=30%=1, >=60%=2, >=90%=3)
+  streak: number,       // current streak
+  bestStreak: number,   // session best
+  correct: number,      // raw correct count
+  total: number,        // raw total count
+});
 ```
-src/
-├── components/
-│   ├── games/          # 32+ game files
-│   ├── premium/        # Shared premium components
-│   └── shared/         # QuizEngine, GameShell, LevelSelect
-├── game/
-│   └── content/        # 15 data files, ~1,700 lines curriculum
-└── godot/              # Godot project sources
-public/
-└── godot/              # Exported HTML5/WASM
+
+For Godot games, send via postMessage:
+```gdscript
+JavaScriptBridge.eval("""
+  window.parent.postMessage({
+    type: 'godot-game-result',
+    gameId: '%s', score: %d, total: %d, stars: %d,
+    streak: %d, bestStreak: %d, correct: %d
+  }, '*');
+""" % [game_id, score, total, stars, streak, best_streak, correct])
 ```
 
 -----
 
-## Quality Standards
+## Wiring Into the App
 
-Before marking a game complete:
-
-1. **Visual**: Premium aesthetic, not placeholder
-2. **Audio**: SFX for actions, music where appropriate
-3. **Feedback**: Immediate response to all inputs
-4. **Mobile**: Touch controls, 375px+ viewport
-5. **Performance**: 60fps, <3s initial load
-6. **Curriculum**: Tagged with CfE outcomes
-7. **Progress**: Saves to ProgressTracker
-8. **Copyright**: Header on every file (HighlandAI, CC BY-NC 4.0)
+Every new game needs:
+1. Game component in `src/components/games/`
+2. Lazy import in `src/components/pupil/Home.tsx`
+3. Entry in `QUIZ_GAMES` map (or iframe for Godot)
+4. Lucide icon in `GAME_ICONS`
+5. Entry in correct category in `GAME_CATEGORIES`
+6. Copyright header on every file
+7. Build must pass: `npm run build`
 
 -----
 
-## Common Pitfalls
+## Scottish CfE Tagging
 
-| Problem | Solution |
-|---------|----------|
-| "Phaser is complex, let's use Canvas" | NO. Use Phaser as requested. |
-| "Three.js is overkill" | NO. Use Three.js for 3D games. |
-| Missing audio | ALWAYS add AudioEngine |
-| No confetti on wins | ALWAYS add Confetti |
-| Placeholder graphics | Replace before shipping |
-| Desktop-only controls | Add touch support |
+Every game must identify its curriculum alignment. See `references/cfe-curriculum.md` for outcome codes. This is not optional — it's how teachers justify using the app to their headteacher.
+
+-----
+
+## References
+
+- `references/engines.md` — Detailed engine docs and capabilities
+- `references/premium-components.md` — AudioEngine, Confetti, GameHeader, ResultsScreen APIs
+- `references/quiz-engine.md` — QuizEngine props, content data files
+- `references/cfe-curriculum.md` — Scottish CfE outcomes for all subjects
+- `references/quality-gates.md` — Shipping checklist

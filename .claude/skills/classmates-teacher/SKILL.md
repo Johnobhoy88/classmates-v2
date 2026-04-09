@@ -6,294 +6,204 @@ description: |
 
 # Classmates Teacher Dashboard Skill
 
-> Build intuitive, data-rich teacher tools for Scottish primary schools
+> A teacher at South Lodge Primary has 22 pupils on iPads with 30 minutes of IT time. The dashboard must give her everything she needs in that time — instantly, clearly, beautifully. Build to that standard.
 
-## Quick Reference
+## MANDATORY QUALITY RULES
 
-| Task | Read First |
-|------|-----------|
-| Dashboard layout | `references/design-system.md` |
-| Class management | `references/teacher-needs.md` |
-| Progress views | `references/teacher-needs.md` |
-| Privacy/GDPR | `references/privacy-rules.md` |
-| Accessibility | `references/accessibility.md` |
+### USE THE FULL POWER OF THE UI STACK
 
------
+You have Recharts, Motion, Radix UI, Lucide, Sonner, and Tailwind. USE ALL OF THEM.
 
-## Platform Overview
+**Recharts** — Do not show raw numbers in a table when a chart tells the story better:
+- LineChart for progress over time (per pupil or class aggregate)
+- BarChart for comparing games (which is hardest, most played)
+- AreaChart for engagement trends (games per day/week)
+- Custom heatmap grid for pupil x game matrix
+- ResponsiveContainer on every chart (never hardcode dimensions)
+- Custom tooltips with context (not just the number)
+- Animated transitions between data views
 
-**Repo**: `github.com/Johnobhoy88/classmates-v2` (private)
-**Deploy**: https://classmates-v2.vercel.app
-**Supabase**: `mtlzmeyppmumbsjhsagq` (eu-west-2)
+**Motion** — Do not render static pages:
+- Page transitions (slide in from right, fade out)
+- Staggered list animations (pupils appear one by one)
+- Card reveals on load (scale from 0.95 + opacity)
+- Number counters (animate from 0 to value)
+- Expand/collapse transitions for drill-downs
+- AnimatePresence for conditional content (modals, panels)
+- Layout animations when items reorder (sort changes)
 
-### Tech Stack
+**Radix UI** — Do not build custom modals or dropdowns:
+- Dialog for add/edit pupil forms
+- AlertDialog for ALL destructive actions (delete, remove, reset)
+- DropdownMenu for row actions (edit, delete, reset PIN, view progress)
+- Tooltip for explaining icons, abbreviations, data points
+- These are accessible by default — keyboard nav, ARIA, focus trap
 
-```
-React 19.2.4 + TypeScript 6.0.2 + Vite 8.0.4
-Tailwind CSS 4.2.2 + Motion (animations)
-Radix UI (dialog, tooltip, dropdown, alert-dialog)
-Recharts (data visualization)
-Supabase (auth, database) + Dexie (offline)
-```
+**Lucide** — Do not use emoji or text for icons:
+- Every action button has an icon + label
+- Status indicators use icons (check, alert, clock)
+- Navigation uses icons
+- Empty states use large illustrative icons
+- Consistent icon weight throughout
 
-### Auth Model
+**Sonner** — Do not silently succeed or fail:
+- Success toast on every create/update/delete
+- Error toast with human-readable message on failure
+- Loading toast for operations >500ms
+- Promise toast pattern for async operations
 
-| Role | Auth Method | Access |
-|------|------------|--------|
-| Teacher | Magic link email | Full dashboard |
-| Pupil | Class code + 4-digit PIN | Games only |
+### DATA PRESENTATION RULES
 
------
+- **Show don't tell**: A chart beats a table. A table beats a paragraph.
+- **Progressive disclosure**: Summary first, detail on click/expand
+- **Comparative context**: "78% — above class average" not just "78%"
+- **Temporal context**: "Last played yesterday" not "2026-04-08T14:30:00Z"
+- **Action-oriented**: Every data point should suggest what to do next
+- **Zero state guidance**: Empty screens guide the teacher to the first action
 
-## Workflow: RESEARCH -> DESIGN -> BUILD -> TEST -> REFINE -> DEPLOY
+### WHAT "GOOD" LOOKS LIKE
 
-### Phase 1: RESEARCH
+The teacher dashboard should feel like:
+- **Stripe Dashboard** — clean, data-dense, scannable
+- **Linear** — fast, keyboard-navigable, responsive
+- **Notion** — clear hierarchy, satisfying interactions
 
-Before writing code:
+It should NOT feel like:
+- A spreadsheet with CSS
+- A form with a submit button
+- A 2010-era admin panel
 
-1. **Check existing dashboard components**:
-   ```bash
-   ls src/components/teacher/
-   ```
-2. **Understand teacher needs** — read `references/teacher-needs.md`
-3. **Check design system** — read `references/design-system.md`
-4. **Review privacy requirements** — read `references/privacy-rules.md`
+### NEVER SHIP
 
-**Gate**: Feature scope understood, privacy requirements clear
-
-### Phase 2: DESIGN
-
-Present to user for approval:
-
-- Feature layout and information hierarchy
-- Data displayed and interactions
-- Privacy considerations
-- Mobile responsiveness approach
-
-**Gate**: User approves design
-
-### Phase 3: BUILD
-
-1. Scaffold component with proper structure
-2. Implement data fetching with loading states
-3. Add interactions with feedback
-4. Ensure accessibility
-5. Handle errors gracefully
-
-**Gate**: Feature compiles, no TypeScript errors
-
-### Phase 4: TEST
-
-```bash
-npm run dev
-# Navigate to teacher dashboard
-# Test on tablet viewport (768px)
-```
-
-Check:
-
-- Loads with skeleton/loading state
-- Data displays correctly
-- Actions provide feedback
-- Works on tablet
-- Keyboard accessible
-
-**Gate**: All checks pass
-
-### Phase 5: REFINE
-
-- Is the information hierarchy clear?
-- Are actions discoverable?
-- Is feedback immediate?
-- Does it reduce teacher cognitive load?
-
-### Phase 6: DEPLOY
-
-```bash
-npm run lint
-npm run build
-git add -A
-git commit -m "feat(teacher): add [feature name]"
-git push origin master
-```
+- A loading spinner without a skeleton placeholder
+- A table that doesn't sort or filter
+- An action with no feedback (toast)
+- A destructive action without confirmation (AlertDialog)
+- A modal that can't be closed with Escape
+- A chart with no labels or legend
+- Raw timestamps instead of relative time
+- A page that only works on desktop
 
 -----
 
-## Dashboard Architecture
-
-### Current File Structure
+## Current State
 
 ```
 src/components/teacher/
-├── Dashboard.tsx      # Main tabbed interface (overview, pupils, progress, assign)
-├── Roster.tsx         # Add/remove pupils, PIN management
-├── Progress.tsx       # Class progress, per-pupil breakdown
-└── Assignments.tsx    # Create/manage game assignments
+├── Dashboard.tsx      # 91 lines — 4 tabs (overview, pupils, progress, assign)
+├── Roster.tsx         # 122 lines — add/remove pupils, PIN management
+├── Progress.tsx       # 201 lines — class stats + per-pupil breakdown
+└── Assignments.tsx    # 153 lines — create/manage game assignments
 ```
 
-### Database Schema
+### Known Gaps (fix these)
+- No search/filter on roster
+- No CSV bulk import
+- Only 10 of 38 games in assignment dropdown
+- No per-pupil drill-down with trend charts
+- No PDF/CSV export
+- No CfE curriculum mapping
+- No class analytics (hardest game, engagement heatmap)
+- No editable teacher profile
+- Plain white/gray design — disconnected from premium pupil UI
+- No skeleton loaders (just "Loading..." text)
+- No toast notifications on actions
+- Teacher dashboard should use teal/emerald accents to connect with pupil app
+
+-----
+
+## Database
 
 ```sql
-teachers    — id, email, display_name, school_name, class_code, created_at
-pupils      — id, teacher_id, display_name, pin (4-char), avatar_config, created_at
-progress    — id, pupil_id, game_id, skill_id, score, stars, streak,
-              best_streak, mastery_level, attempts, coins_earned,
-              last_played_at, synced_at
-assignments — id, teacher_id, game_id, skill_id, message, active, created_at
-rewards     — id, pupil_id, coins, unlocked_items, equipped, achievements
+-- All with Row Level Security, teachers see only their own data
+teachers    (id, email, display_name, school_name, class_code, created_at)
+pupils      (id, teacher_id, display_name, pin, avatar_config, created_at)
+progress    (id, pupil_id, game_id, skill_id, score, stars, streak,
+             best_streak, mastery_level, attempts, coins_earned,
+             last_played_at, synced_at)
+assignments (id, teacher_id, game_id, skill_id, message, active, created_at)
+rewards     (id, pupil_id, coins, unlocked_items, equipped, achievements)
 ```
 
-All tables have Row Level Security. Teachers see only their own class.
+Supabase project: `mtlzmeyppmumbsjhsagq` (eu-west-2, PostgreSQL 17.6)
 
 -----
 
-## Key Features
+## Feature Requirements
 
-### 1. Dashboard Overview
+### Dashboard Overview
+- KPI cards with animated counters: active today, games completed, avg score, needs attention
+- Recent activity feed (last 10 game completions)
+- Quick actions: add pupil, create assignment, view reports
 
-Top-level KPIs a teacher needs at a glance:
+### Roster
+- Search by name (instant filter)
+- Sort by name, last active, stars
+- Bulk CSV import (FileReader API, parse, generate PINs, batch insert)
+- Row actions via DropdownMenu: edit name, reset PIN, view progress, remove
+- Inline edit for display name
+- Empty state with clear CTA
 
-| KPI | Description |
-|-----|-------------|
-| Active pupils today | Count of pupils who played |
-| Games completed | Total games finished today |
-| Average score | Class average across activities |
-| Alerts | Pupils needing attention |
+### Progress
+- Class summary: aggregate stars, games, active count
+- Pupil table: sortable, filterable, clickable rows
+- Pupil drill-down panel: per-game breakdown with stars, attempts, mastery
+- Trend chart: LineChart showing progress over last 10 attempts per game
+- Game comparison: BarChart of avg stars per game across class
+- Engagement heatmap: pupils (rows) x games (columns), colour by mastery
 
-### 2. Class Roster Management
-
-| Action | Implementation |
-|--------|---------------|
-| Add pupil | Modal form, generate unique 4-digit PIN |
-| Edit pupil | Inline or modal edit |
-| Remove pupil | Confirm dialog (Radix AlertDialog) |
-| Reset PIN | Generate new 4-digit PIN |
-| Bulk import | CSV upload (planned) |
-
-### 3. Progress Views
-
-| View | Shows |
-|------|-------|
-| Class summary | Total stars, games played, active today |
-| Pupil table | Per-pupil stars, games, last active, top game |
-| Pupil detail | Per-game breakdown with stars, attempts, mastery |
-
-### 4. Assignments
-
-- Create assignments with specific games
+### Assignments
+- Full game list (all 38 games, not just 10)
+- Level targeting (assign specific difficulty)
 - Optional message to pupils
-- Toggle active/inactive
-- Delete with confirmation
+- Active/inactive toggle with toast feedback
+- Delete with AlertDialog confirmation
 
-### 5. Reports (planned)
+### Reports (planned)
+- Per-pupil PDF (browser print CSS or jspdf)
+- Class summary PDF
+- CfE coverage report
+- CSV data export
 
-- Individual pupil reports (PDF via browser print)
-- Class progress reports
-- CfE coverage reports
-- Data exports (CSV)
-
------
-
-## Design Principles
-
-### 1. Information Hierarchy
-- Most important data visible without scrolling
-- Progressive disclosure for details
-- Clear visual grouping
-
-### 2. Reduce Cognitive Load
-- Sensible defaults
-- Batch actions for repetitive tasks
-- Clear empty states with guidance
-
-### 3. Fast Feedback
-- Toast notifications for all actions (Sonner)
-- Loading indicators for async operations
-- Optimistic updates where safe
-
-### 4. Mobile-Aware
-- Teachers often use tablets
-- Touch-friendly targets (44px min)
-- Responsive tables (cards on mobile)
+### Analytics (planned)
+- Game difficulty ranking (avg stars across class)
+- Engagement trends (games per day over 30 days)
+- Intervention flags (pupils stuck below 1 star)
+- Most/least played games
 
 -----
 
-## Component Patterns
+## Privacy — NON-NEGOTIABLE
 
-### Toast Notifications
+- No pupil emails, real names, DOB, or addresses collected
+- Display names chosen by teacher (could be initials)
+- All data scoped by RLS (teachers see only their class)
+- Cascade delete on pupil removal
+- No analytics/tracking beyond game progress
+- No data sharing between teachers/schools
+- No PII in URLs or console logs
+- Supabase in EU region (GDPR compliant)
 
-```tsx
-import { toast } from 'sonner';
-
-toast.success('Pupil added successfully');
-toast.error('Failed to save changes');
-toast.promise(savePupil(data), {
-  loading: 'Saving...',
-  success: 'Saved!',
-  error: 'Failed to save'
-});
-```
-
-### Confirmation Dialogs
-
-Use Radix AlertDialog for destructive actions (remove pupil, delete assignment).
-
-### Data Visualization
-
-Use Recharts for:
-- Progress over time (LineChart)
-- Game difficulty comparison (BarChart)
-- Engagement heatmap (custom grid)
+See `references/privacy-rules.md` for complete rules.
 
 -----
 
-## Privacy and GDPR
+## Accessibility — NON-NEGOTIABLE
 
-**Critical**: All teacher features must follow GDPR requirements.
+- Keyboard navigable (Tab, Enter, Escape, Arrow keys)
+- Screen reader compatible (ARIA labels, roles, live regions)
+- WCAG AA contrast ratios
+- Visible focus indicators
+- Form labels associated with inputs
+- Use Radix UI primitives (accessible by default)
 
-| Principle | Implementation |
-|-----------|---------------|
-| Data minimization | Only collect display_name + PIN (no personal data) |
-| Purpose limitation | Use data only for education |
-| Access control | Teachers see only their own class (RLS) |
-| No PII | No pupil emails, no real names required |
-| Offline-first | Data stays on device until synced |
-
-See `references/privacy-rules.md` for full requirements.
+See `references/accessibility.md` for complete checklist.
 
 -----
 
-## Accessibility
+## References
 
-All teacher features must be:
-
-- Keyboard navigable
-- Screen reader compatible
-- WCAG AA color contrast
-- Focus indicators visible
-- Form labels associated
-
-See `references/accessibility.md` for full checklist.
-
------
-
-## Quality Checklist
-
-Before shipping teacher features:
-
-- Feature works as expected
-- Error states handled
-- Loading states shown
-- Empty states helpful
-- Information hierarchy clear
-- Actions discoverable
-- Feedback immediate (toasts)
-- Tablet-friendly (768px+)
-- Only necessary data shown
-- Access control verified (RLS)
-- Keyboard navigable
-- Color contrast passes
-- TypeScript clean
-- Lint passes
-- Build succeeds
-- Copyright header on every file
+- `references/design-system.md` — Colours, typography, layout, components
+- `references/teacher-needs.md` — Daily/weekly/termly teacher workflows
+- `references/privacy-rules.md` — GDPR, data minimization, RLS
+- `references/accessibility.md` — WCAG AA, keyboard nav, screen readers
