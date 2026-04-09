@@ -317,7 +317,10 @@ func _draw() -> void:
 	var px = 150.0
 	var py = player_y
 	# Shadow
-	draw_ellipse(Rect2(px - 18, GROUND_Y + 14, 36, 10), Color(0, 0, 0, 0.2))
+	# Shadow (oval using scaled circle)
+	draw_set_transform(Vector2(px, GROUND_Y + 18), 0, Vector2(1.8, 0.5))
+	draw_circle(Vector2.ZERO, 12, Color(0, 0, 0, 0.2))
+	draw_set_transform(Vector2.ZERO, 0, Vector2.ONE)
 	# Body
 	draw_circle(Vector2(px, py - 8), 22, Color(0.2, 0.4, 1.0))
 	# Belly
