@@ -95,6 +95,7 @@ export function DailyChallenge({ onExit }: { onExit: () => void }) {
         color: '#f7971e',
         icon: '\u{1F31F}',
         questions: buildDailyQuestions(),
+        theme: 'cosmos',
       }}
       onExit={onExit}
     />
