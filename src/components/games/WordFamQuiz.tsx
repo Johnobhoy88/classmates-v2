@@ -27,6 +27,6 @@ function buildQuestions(level: WordFamLevel): QuizQuestion[] {
 
 export function WordFamQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<WordFamLevel | null>(null);
-  if (!level) return <LevelSelect title="Word Families" color="#00b894" icon="-ing" onSelect={(lv) => setLevel(lv as WordFamLevel)} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'wordfam', title: 'Word Families Done!', subtitle: `Level ${level}`, color: '#00b894', icon: '-ing', questions: buildQuestions(level), adaptiveTopic: 'wordfam' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Word Families" color="#00b894" icon="-ing" theme="forest" onSelect={(lv) => setLevel(lv as WordFamLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'wordfam', title: 'Word Families Done!', subtitle: `Level ${level}`, color: '#00b894', icon: '-ing', questions: buildQuestions(level), adaptiveTopic: 'wordfam', theme: 'forest' }} onExit={onExit} />;
 }

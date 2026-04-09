@@ -22,27 +22,27 @@ function geoToQuiz(data: GeoQuestion[]): QuizQuestion[] {
 // === CAPITALS ===
 export function CapitalsQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<GeoLevel | null>(null);
-  if (!level) return <LevelSelect title="Capitals" color="#b45309" icon="\u{1F3DB}" onSelect={(lv) => setLevel(lv as GeoLevel)} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'capitals', title: 'Capitals Done!', subtitle: `Level ${level}`, color: '#b45309', icon: '\u{1F3DB}', questions: geoToQuiz(CAPS_DATA[level]) }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Capitals" color="#b45309" icon="\u{1F3DB}" theme="earth" onSelect={(lv) => setLevel(lv as GeoLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'capitals', title: 'Capitals Done!', subtitle: `Level ${level}`, color: '#b45309', icon: '\u{1F3DB}', questions: geoToQuiz(CAPS_DATA[level]), theme: 'earth' }} onExit={onExit} />;
 }
 
 // === CONTINENTS ===
 export function ContinentsQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<GeoLevel | null>(null);
-  if (!level) return <LevelSelect title="World Geography" color="#0284c7" icon="\u{1F30D}" onSelect={(lv) => setLevel(lv as GeoLevel)} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'continents', title: 'World Geography Done!', subtitle: `Level ${level}`, color: '#0284c7', icon: '\u{1F30D}', questions: geoToQuiz(CONT_DATA[level]) }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="World Geography" color="#0284c7" icon="\u{1F30D}" theme="earth" onSelect={(lv) => setLevel(lv as GeoLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'continents', title: 'World Geography Done!', subtitle: `Level ${level}`, color: '#0284c7', icon: '\u{1F30D}', questions: geoToQuiz(CONT_DATA[level]), theme: 'earth' }} onExit={onExit} />;
 }
 
 // === WEATHER ===
 export function WeatherQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<GeoLevel | null>(null);
-  if (!level) return <LevelSelect title="Weather" color="#0369a1" icon="\u2600" onSelect={(lv) => setLevel(lv as GeoLevel)} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'weather', title: 'Weather Done!', subtitle: `Level ${level}`, color: '#0369a1', icon: '\u2600', questions: geoToQuiz(WEATHER_DATA[level]) }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Weather" color="#0369a1" icon="\u2600" theme="earth" onSelect={(lv) => setLevel(lv as GeoLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'weather', title: 'Weather Done!', subtitle: `Level ${level}`, color: '#0369a1', icon: '\u2600', questions: geoToQuiz(WEATHER_DATA[level]), theme: 'earth' }} onExit={onExit} />;
 }
 
 // === COMPASS ===
 export function CompassQuiz({ onExit }: { onExit: () => void }) {
-  return <QuizEngine config={{ gameId: 'compass', title: 'Compass Done!', subtitle: '', color: '#92400e', icon: '\u{1F9ED}', questions: geoToQuiz(COMPASS_Q) }} onExit={onExit} />;
+  return <QuizEngine config={{ gameId: 'compass', title: 'Compass Done!', subtitle: '', color: '#92400e', icon: '\u{1F9ED}', questions: geoToQuiz(COMPASS_Q), theme: 'earth' }} onExit={onExit} />;
 }
 
 // === FLAGS ===
@@ -53,10 +53,10 @@ export function FlagsQuiz({ onExit }: { onExit: () => void }) {
     answer: f.correct,
     options: [...f.opts],
   }));
-  return <QuizEngine config={{ gameId: 'flags', title: 'Flags Done!', subtitle: '', color: '#003049', icon: '\u{1F3F3}', questions }} onExit={onExit} />;
+  return <QuizEngine config={{ gameId: 'flags', title: 'Flags Done!', subtitle: '', color: '#003049', icon: '\u{1F3F3}', questions, theme: 'earth' }} onExit={onExit} />;
 }
 
 // === SCOTTISH QUIZ ===
 export function ScotQuiz({ onExit }: { onExit: () => void }) {
-  return <QuizEngine config={{ gameId: 'scotquiz', title: 'Scotland Quiz Done!', subtitle: '', color: '#005EB8', icon: '\u{1F3F4}', questions: geoToQuiz(shuffle([...SCOT_QUIZ]).slice(0, 20)) }} onExit={onExit} />;
+  return <QuizEngine config={{ gameId: 'scotquiz', title: 'Scotland Quiz Done!', subtitle: '', color: '#005EB8', icon: '\u{1F3F4}', questions: geoToQuiz(shuffle([...SCOT_QUIZ]).slice(0, 20)), theme: 'earth' }} onExit={onExit} />;
 }

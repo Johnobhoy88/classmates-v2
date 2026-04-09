@@ -23,11 +23,11 @@ function buildQuestions(level: GrammarLevel): QuizQuestion[] {
 export function GrammarQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<GrammarLevel | null>(null);
 
-  if (!level) return <LevelSelect title="Grammar" color="#636e72" icon="N V" onSelect={(lv) => setLevel(lv as GrammarLevel)} onBack={onExit} />;
+  if (!level) return <LevelSelect title="Grammar" color="#636e72" icon="N V" theme="forest" onSelect={(lv) => setLevel(lv as GrammarLevel)} onBack={onExit} />;
 
   return (
     <QuizEngine
-      config={{ gameId: 'grammar', title: 'Grammar Done!', subtitle: `Level ${level}`, color: '#636e72', icon: 'N V', questions: buildQuestions(level), adaptiveTopic: 'grammar' }}
+      config={{ gameId: 'grammar', title: 'Grammar Done!', subtitle: `Level ${level}`, color: '#636e72', icon: 'N V', questions: buildQuestions(level), adaptiveTopic: 'grammar', theme: 'forest' }}
       onExit={onExit}
     />
   );

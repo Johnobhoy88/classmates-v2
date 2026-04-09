@@ -27,11 +27,11 @@ function buildQuestions(level: RhymeLevel): QuizQuestion[] {
 export function RhymeQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<RhymeLevel | null>(null);
 
-  if (!level) return <LevelSelect title="Rhyming" color="#6c5ce7" icon="\u266B" onSelect={(lv) => setLevel(lv as RhymeLevel)} onBack={onExit} />;
+  if (!level) return <LevelSelect title="Rhyming" color="#6c5ce7" icon="\u266B" theme="forest" onSelect={(lv) => setLevel(lv as RhymeLevel)} onBack={onExit} />;
 
   return (
     <QuizEngine
-      config={{ gameId: 'rhyme', title: 'Rhyming Done!', subtitle: `Level ${level}`, color: '#6c5ce7', icon: '\u266B', questions: buildQuestions(level), adaptiveTopic: 'rhyme' }}
+      config={{ gameId: 'rhyme', title: 'Rhyming Done!', subtitle: `Level ${level}`, color: '#6c5ce7', icon: '\u266B', questions: buildQuestions(level), adaptiveTopic: 'rhyme', theme: 'forest' }}
       onExit={onExit}
     />
   );

@@ -29,6 +29,6 @@ function build(level: number): QuizQuestion[] { return Array.from({length: 10}, 
 
 export function SequencesQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Sequences" color="#00cec9" icon="1,2,?" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'sequence', title: 'Sequences Done!', subtitle: `Level ${level}`, color: '#00cec9', icon: '1,2,?', questions: build(level), adaptiveTopic: 'sequence' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Sequences" color="#00cec9" icon="1,2,?" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'sequence', title: 'Sequences Done!', subtitle: `Level ${level}`, color: '#00cec9', icon: '1,2,?', questions: build(level), adaptiveTopic: 'sequence', theme: 'cosmos' }} onExit={onExit} />;
 }

@@ -233,6 +233,26 @@ export const THEME_OCEAN: AmbientConfig = {
   noiseType: 'water',
 };
 
+/** Cosmos — mysterious space feel, D Dorian, slow and ethereal */
+export const THEME_COSMOS: AmbientConfig = {
+  scale: [293.7, 329.6, 349.2, 392.0, 440.0, 466.2, 523.3, 587.3], // D Dorian
+  tempo: 105,
+  arpPattern: [0, 4, 2, 7, 4, 0, 2, 7],
+  padChord: [0, 2, 4],
+  padFilterFreq: 450,
+  noiseType: 'wind',
+};
+
+/** Earth — warm and grounded, G major, moderate tempo */
+export const THEME_EARTH: AmbientConfig = {
+  scale: [392.0, 440.0, 493.9, 523.3, 587.3, 659.3, 740.0, 784.0], // G major
+  tempo: 120,
+  arpPattern: [0, 2, 4, 7, 4, 2, 0, 4],
+  padChord: [0, 2, 4],
+  padFilterFreq: 650,
+  noiseType: 'wind',
+};
+
 export function startMusic(config: AmbientConfig) {
   if (ambientRunning) return;
   const c = getCtx();

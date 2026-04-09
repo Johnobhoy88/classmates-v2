@@ -40,6 +40,6 @@ function build(level: number): QuizQuestion[] { return Array.from({length: 10}, 
 
 export function MoneyQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Money" color="#1a5276" icon="\u00A3p" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'money', title: 'Money Done!', subtitle: `Level ${level}`, color: '#1a5276', icon: '\u00A3p', questions: build(level), adaptiveTopic: 'money' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Money" color="#1a5276" icon="\u00A3p" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'money', title: 'Money Done!', subtitle: `Level ${level}`, color: '#1a5276', icon: '\u00A3p', questions: build(level), adaptiveTopic: 'money', theme: 'cosmos' }} onExit={onExit} />;
 }

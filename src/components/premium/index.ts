@@ -14,5 +14,5 @@ export type { ThemeState, LevelDef, GameResult } from './themes';
 export {
   sfxCoin, sfxBuzz, sfxLevelUp, sfxComplete, sfxFail, sfxHeartLost, sfxClick, sfxFanfare,
   startMusic, stopMusic, updateMusic, getScale,
-  THEME_FOREST, THEME_OCEAN,
+  THEME_FOREST, THEME_OCEAN, THEME_COSMOS, THEME_EARTH,
 } from './AudioEngine';

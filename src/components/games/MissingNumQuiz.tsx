@@ -46,6 +46,6 @@ function build(level: number): QuizQuestion[] { return Array.from({length: 10}, 
 
 export function MissingNumQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Missing Number" color="#e17055" icon="?" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'missnum', title: 'Missing Number Done!', subtitle: `Level ${level}`, color: '#e17055', icon: '?', questions: build(level), adaptiveTopic: 'missnum' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Missing Number" color="#e17055" icon="?" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'missnum', title: 'Missing Number Done!', subtitle: `Level ${level}`, color: '#e17055', icon: '?', questions: build(level), adaptiveTopic: 'missnum', theme: 'cosmos' }} onExit={onExit} />;
 }

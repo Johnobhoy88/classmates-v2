@@ -25,7 +25,7 @@ export function ReadingQuiz({ onExit }: { onExit: () => void }) {
   const [story, setStory] = useState<ReadingStory | null>(null);
   const [readDone, setReadDone] = useState(false);
 
-  if (!level) return <LevelSelect title="Reading" color="#56ab2f" icon="Bb" onSelect={(lv) => setLevel(lv as ReadingLevel)} onBack={onExit} />;
+  if (!level) return <LevelSelect title="Reading" color="#56ab2f" icon="Bb" theme="forest" onSelect={(lv) => setLevel(lv as ReadingLevel)} onBack={onExit} />;
 
   // Pick a random story for this level
   if (!story) {
@@ -70,6 +70,7 @@ export function ReadingQuiz({ onExit }: { onExit: () => void }) {
         questions: storyToQuiz(story),
         adaptiveTopic: 'reading',
         wrongDelay: 1500,
+        theme: 'forest',
       }}
       onExit={onExit}
     />

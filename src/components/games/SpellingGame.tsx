@@ -4,9 +4,15 @@
  * Licensed under CC BY-NC 4.0
  * https://github.com/Johnobhoy88/classmates-v2
  *
- * PREMIUM SPELLING GAME — React + Motion + Canvas + Web Audio
- * Enchanted forest backdrop, spring-animated UI, procedural ambient audio,
- * emoji word hints, glassmorphism keyboard, confetti celebrations
+ * SPELLING GAME — "Spellbound Forest"
+ * Phaser 3 forest background (particles, tweens, camera effects, owl mascot)
+ * + React UI (Motion springs, glassmorphism keyboard, confetti)
+ * + AudioEngine (forest music, dynamic SFX on every interaction)
+ * + Premium components (GameHeader w/ Radix quit dialog, ResultsScreen, Confetti, Sonner toasts)
+ *
+ * CfE Outcomes: LIT 1-13a (Spelling — knowledge of spelling patterns)
+ *               LIT 1-21a (Reading — word recognition, phonics)
+ * CfE Levels:   Early (P1), First (P2-P4), Second (P5-P7)
  */
 
 import { useState, useCallback, useEffect, useRef } from 'react';
@@ -19,14 +25,13 @@ import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { calcStars } from '../../utils/stars';
 import { shuffle } from '../../utils/shuffle';
-import { SpellingForestBg } from './SpellingForestBg';
-import type { ForestState } from './SpellingForestBg';
+import { QuizWorld } from '../shared/QuizWorld';
 import {
   GameHeader, ResultsScreen, PremiumLevelSelect, useConfetti, ConfettiLayer,
   sfxCoin, sfxBuzz, sfxComplete, sfxFail, sfxLevelUp, sfxHeartLost, sfxClick, sfxFanfare,
   startMusic, stopMusic, updateMusic, getScale, THEME_FOREST,
 } from '../premium';
-import type { LevelDef, GameResult } from '../premium';
+import type { ThemeState, LevelDef, GameResult } from '../premium';
 
 const KEYBOARD_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const LEVELS: LevelDef[] = [
@@ -64,12 +69,12 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
   const [result, setResult] = useState<GameResult | null>(null);
   const [shake, setShake] = useState(false);
   const [audioOn, setAudioOn] = useState(true);
-  const [forestEvent, setForestEvent] = useState<ForestState['event']>('none');
+  const [forestEvent, setForestEvent] = useState<ThemeState['event']>('none');
   const savedRef = useRef(false);
   const { pieces: confetti, burst: burstConfetti } = useConfetti();
 
-  // Compute forest state from game state
-  const forestState: ForestState = game ? {
+  // Compute theme state from game state — drives Phaser forest background
+  const forestState: ThemeState = game ? {
     progress: game.idx / game.total,
     streak: game.streak,
     livesRatio: game.lives / game.maxLives,
@@ -160,7 +165,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           if (newStreak >= 5) sfxLevelUp(getScale());
           else sfxComplete(getScale());
         }
-        burstConfetti();
+        burstConfetti(newStreak >= 5 ? 20 : 10);
 
         setGame(g => g ? {
           ...g, revealed: newRevealed, usedKeys: newUsed,
@@ -217,6 +222,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           const stars = calcStars(pct);
           setForestEvent('gameComplete');
           if (audioOn) sfxFanfare(getScale());
+          burstConfetti(stars >= 3 ? 40 : stars >= 2 ? 25 : 12);
           setResult({ correct: game.correct, total: game.total, stars, bestStreak: game.bestStreak, missed: game.missed });
         } else {
           const w = game.words[nextIdx].w.toLowerCase();
@@ -251,7 +257,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
   if (!level || (!game && !result)) {
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <SpellingForestBg state={forestState} />
+        <QuizWorld theme="forest" state={forestState} />
         <PremiumLevelSelect
           title="Spellbound Forest"
           subtitle="Guess the word from the clue!"
@@ -259,7 +265,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
           levels={LEVELS}
           audioOn={audioOn}
           onToggleAudio={toggleAudio}
-          onSelect={(lv) => startGame(lv as SpellingLevel)}
+          onSelect={(lv) => { sfxClick(); startGame(lv as SpellingLevel); }}
           onExit={onExit}
         />
       </div>
@@ -272,7 +278,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
     const missedWithEmoji = result.missed.map(m => ({ ...m, emoji: getEmoji(m.w) }));
     return (
       <div className="min-h-screen relative overflow-hidden">
-        <SpellingForestBg state={forestState} />
+        <QuizWorld theme="forest" state={forestState} />
         <ResultsScreen
           result={{ ...result, missed: missedWithEmoji }}
           onPlayAgain={() => { setGame(null); setResult(null); setLevel(null); }}
@@ -293,7 +299,7 @@ export function SpellingGame({ onExit }: { onExit: () => void }) {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      <SpellingForestBg state={forestState} />
+      <QuizWorld theme="forest" state={forestState} />
 
       <ConfettiLayer pieces={confetti} />
 

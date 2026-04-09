@@ -36,6 +36,6 @@ function build(level: number): QuizQuestion[] { return Array.from({length: 10}, 
 
 export function PlaceValueQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Place Value" color="#f46b45" icon="HTO" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'placeval', title: 'Place Value Done!', subtitle: `Level ${level}`, color: '#f46b45', icon: 'HTO', questions: build(level), adaptiveTopic: 'placeval' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Place Value" color="#f46b45" icon="HTO" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'placeval', title: 'Place Value Done!', subtitle: `Level ${level}`, color: '#f46b45', icon: 'HTO', questions: build(level), adaptiveTopic: 'placeval', theme: 'cosmos' }} onExit={onExit} />;
 }

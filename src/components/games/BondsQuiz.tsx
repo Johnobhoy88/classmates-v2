@@ -34,7 +34,7 @@ function buildQuestions(): QuizQuestion[] {
 export function BondsQuiz({ onExit }: { onExit: () => void }) {
   return (
     <QuizEngine
-      config={{ gameId: 'bonds', title: 'Number Bonds Done!', subtitle: '', color: '#11998e', icon: '10', questions: buildQuestions(), adaptiveTopic: 'bonds' }}
+      config={{ gameId: 'bonds', title: 'Number Bonds Done!', subtitle: '', color: '#11998e', icon: '10', questions: buildQuestions(), adaptiveTopic: 'bonds', theme: 'cosmos' }}
       onExit={onExit}
     />
   );

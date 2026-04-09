@@ -22,11 +22,11 @@ function buildQuestions(level: VocabLevel): QuizQuestion[] {
 export function VocabQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<VocabLevel | null>(null);
 
-  if (!level) return <LevelSelect title="Vocabulary" color="#6c5ce7" icon="A-Z" onSelect={(lv) => setLevel(lv as VocabLevel)} onBack={onExit} />;
+  if (!level) return <LevelSelect title="Vocabulary" color="#6c5ce7" icon="A-Z" theme="forest" onSelect={(lv) => setLevel(lv as VocabLevel)} onBack={onExit} />;
 
   return (
     <QuizEngine
-      config={{ gameId: 'vocab', title: 'Vocabulary Done!', subtitle: `Level ${level}`, color: '#6c5ce7', icon: 'A-Z', questions: buildQuestions(level), adaptiveTopic: 'vocab' }}
+      config={{ gameId: 'vocab', title: 'Vocabulary Done!', subtitle: `Level ${level}`, color: '#6c5ce7', icon: 'A-Z', questions: buildQuestions(level), adaptiveTopic: 'vocab', theme: 'forest' }}
       onExit={onExit}
     />
   );

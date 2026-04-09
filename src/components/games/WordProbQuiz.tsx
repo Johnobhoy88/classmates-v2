@@ -27,6 +27,6 @@ function buildQuestions(level: WordProbLevel): QuizQuestion[] {
 
 export function WordProbQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<WordProbLevel | null>(null);
-  if (!level) return <LevelSelect title="Word Problems" color="#e17055" icon="?" onSelect={(lv) => setLevel(lv as WordProbLevel)} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'wordprob', title: 'Word Problems Done!', subtitle: `Level ${level}`, color: '#e17055', icon: '?', questions: buildQuestions(level), adaptiveTopic: 'wordprob' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Word Problems" color="#e17055" icon="?" theme="cosmos" onSelect={(lv) => setLevel(lv as WordProbLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'wordprob', title: 'Word Problems Done!', subtitle: `Level ${level}`, color: '#e17055', icon: '?', questions: buildQuestions(level), adaptiveTopic: 'wordprob', theme: 'cosmos' }} onExit={onExit} />;
 }

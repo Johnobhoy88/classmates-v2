@@ -22,11 +22,11 @@ function buildQuestions(level: MeasureLevel): QuizQuestion[] {
 export function MeasureQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<MeasureLevel | null>(null);
 
-  if (!level) return <LevelSelect title="Measurement" color="#0984e3" icon="cm" onSelect={(lv) => setLevel(lv as MeasureLevel)} onBack={onExit} />;
+  if (!level) return <LevelSelect title="Measurement" color="#0984e3" icon="cm" theme="cosmos" onSelect={(lv) => setLevel(lv as MeasureLevel)} onBack={onExit} />;
 
   return (
     <QuizEngine
-      config={{ gameId: 'measure', title: 'Measurement Done!', subtitle: `Level ${level}`, color: '#0984e3', icon: 'cm', questions: buildQuestions(level), adaptiveTopic: 'measure' }}
+      config={{ gameId: 'measure', title: 'Measurement Done!', subtitle: `Level ${level}`, color: '#0984e3', icon: 'cm', questions: buildQuestions(level), adaptiveTopic: 'measure', theme: 'cosmos' }}
       onExit={onExit}
     />
   );

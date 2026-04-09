@@ -90,6 +90,7 @@ export function TimesQuiz({ onExit }: { onExit: () => void }) {
         adaptiveTopic: 'times',
         correctDelay: 400,
         wrongDelay: 1000,
+        theme: 'cosmos',
       }}
       onExit={onExit}
     />

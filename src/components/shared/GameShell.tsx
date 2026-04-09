@@ -8,7 +8,6 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import Phaser from 'phaser';
 import { createPhaserGame } from '../../game/PhaserGame';
-import { SpellingScene } from '../../game/scenes/SpellingScene';
 import { recordGameResult } from '../../game/systems/ProgressTracker';
 import { useAuth } from '../auth/AuthProvider';
 import { motion } from 'motion/react';
@@ -16,10 +15,8 @@ import { Type, ArrowLeft, Star, Zap, Trophy } from 'lucide-react';
 import { GameBackButton } from './GameNav';
 
 // Tier 2: Phaser scenes for flagship immersive games
-const PHASER_SCENES: Record<string, { scene: typeof Phaser.Scene; key: string }> = {
-  spelling: { scene: SpellingScene, key: 'SpellingScene' },
-  // Future: platformer, forest, forge scenes will go here
-};
+// Register scenes here as they're created (e.g. platformer, forge)
+const PHASER_SCENES: Record<string, { scene: typeof Phaser.Scene; key: string }> = {};
 
 interface GameShellProps {
   gameId: string;

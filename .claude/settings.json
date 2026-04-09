@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/skill-enforcer.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/game-quality-check.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/teacher-quality-check.sh",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/new-game-wiring.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/build-verify.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

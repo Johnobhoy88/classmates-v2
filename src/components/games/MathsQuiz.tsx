@@ -39,7 +39,7 @@ function buildQuestions(level: MathLevel): QuizQuestion[] {
 export function MathsQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<MathLevel | null>(null);
 
-  if (!level) return <LevelSelect title="Maths" color="#0984e3" icon="1+2" onSelect={(lv) => setLevel(lv as MathLevel)} onBack={onExit} />;
+  if (!level) return <LevelSelect title="Maths" color="#0984e3" icon="1+2" theme="cosmos" onSelect={(lv) => setLevel(lv as MathLevel)} onBack={onExit} />;
 
   return (
     <QuizEngine
@@ -51,6 +51,7 @@ export function MathsQuiz({ onExit }: { onExit: () => void }) {
         icon: '1+2',
         questions: buildQuestions(level),
         adaptiveTopic: 'maths',
+        theme: 'cosmos',
       }}
       onExit={onExit}
     />

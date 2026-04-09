@@ -39,6 +39,6 @@ function build(level: number): QuizQuestion[] { return Array.from({length: 10}, 
 
 export function TellingTimeQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Telling Time" color="#2c3e50" icon="3:00" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'telltime', title: 'Telling Time Done!', subtitle: `Level ${level}`, color: '#2c3e50', icon: '3:00', questions: build(level), adaptiveTopic: 'time' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Telling Time" color="#2c3e50" icon="3:00" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'telltime', title: 'Telling Time Done!', subtitle: `Level ${level}`, color: '#2c3e50', icon: '3:00', questions: build(level), adaptiveTopic: 'time', theme: 'cosmos' }} onExit={onExit} />;
 }

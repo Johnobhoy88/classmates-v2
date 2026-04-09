@@ -50,6 +50,6 @@ function buildQuestions(level: number): QuizQuestion[] { return Array.from({leng
 
 export function FractionsQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Fractions" color="#c0392b" icon="\u00BD" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'fractions', title: 'Fractions Done!', subtitle: `Level ${level}`, color: '#c0392b', icon: '\u00BD', questions: buildQuestions(level), adaptiveTopic: 'fractions' }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Fractions" color="#c0392b" icon="\u00BD" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'fractions', title: 'Fractions Done!', subtitle: `Level ${level}`, color: '#c0392b', icon: '\u00BD', questions: buildQuestions(level), adaptiveTopic: 'fractions', theme: 'cosmos' }} onExit={onExit} />;
 }

@@ -39,6 +39,6 @@ function build(level: number): QuizQuestion[] { return Array.from({length: 10}, 
 
 export function DataHandlingQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<number | null>(null);
-  if (!level) return <LevelSelect title="Data Handling" color="#00b894" icon="\u{1F4CA}" onSelect={setLevel} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'datahandling', title: 'Data Handling Done!', subtitle: `Level ${level}`, color: '#00b894', icon: '\u{1F4CA}', questions: build(level) }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Data Handling" color="#00b894" icon="\u{1F4CA}" theme="cosmos" onSelect={setLevel} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'datahandling', title: 'Data Handling Done!', subtitle: `Level ${level}`, color: '#00b894', icon: '\u{1F4CA}', questions: build(level), theme: 'cosmos' }} onExit={onExit} />;
 }

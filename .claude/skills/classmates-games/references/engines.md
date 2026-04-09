@@ -3,7 +3,8 @@
 ## Phaser 3.90
 - Package: `phaser` (installed)
 - Wrapper: `src/components/shared/GameShell.tsx`
-- Example: `src/game/scenes/SpellingScene.ts` (404 lines)
+- Background scenes: `src/game/scenes/QuizWorldScene.ts` (forest/cosmos/earth themes)
+- React bridge: `src/components/shared/QuizWorld.tsx`
 - Use for: 2D games needing sprites, physics, particles, tweens
 - Scene lifecycle: `preload()`, `create()`, `update()`
 

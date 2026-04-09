@@ -8,6 +8,19 @@ description: |
 
 > A teacher at South Lodge Primary has 22 pupils on iPads with 30 minutes of IT time. The dashboard must give her everything she needs in that time — instantly, clearly, beautifully. Build to that standard.
 
+## BEFORE YOU WRITE ANY CODE
+
+This is a blocking requirement. You MUST complete these steps before writing a single line:
+
+**STEP 1:** Read the design system reference: `references/design-system.md`
+**STEP 2:** Read the privacy rules (they are NON-NEGOTIABLE): see PRIVACY section below
+**STEP 3:** Read the accessibility requirements: see ACCESSIBILITY section below
+**STEP 4:** Review the SHIPPING GATE checklist at the bottom — you will need to pass every item
+
+If you skip these steps, you WILL miss requirements and waste the user's time. Do them now.
+
+-----
+
 ## MANDATORY QUALITY RULES
 
 ### USE THE FULL POWER OF THE UI STACK
@@ -90,10 +103,10 @@ It should NOT feel like:
 
 ```
 src/components/teacher/
-├── Dashboard.tsx      # 91 lines — 4 tabs (overview, pupils, progress, assign)
-├── Roster.tsx         # 122 lines — add/remove pupils, PIN management
-├── Progress.tsx       # 201 lines — class stats + per-pupil breakdown
-└── Assignments.tsx    # 153 lines — create/manage game assignments
+  Dashboard.tsx      # 91 lines — 4 tabs (overview, pupils, progress, assign)
+  Roster.tsx         # 122 lines — add/remove pupils, PIN management
+  Progress.tsx       # 201 lines — class stats + per-pupil breakdown
+  Assignments.tsx    # 153 lines — create/manage game assignments
 ```
 
 ### Known Gaps (fix these)
@@ -165,45 +178,115 @@ Supabase project: `mtlzmeyppmumbsjhsagq` (eu-west-2, PostgreSQL 17.6)
 - CfE coverage report
 - CSV data export
 
-### Analytics (planned)
-- Game difficulty ranking (avg stars across class)
-- Engagement trends (games per day over 30 days)
-- Intervention flags (pupils stuck below 1 star)
-- Most/least played games
-
 -----
 
-## Privacy — NON-NEGOTIABLE
+## PRIVACY RULES (NON-NEGOTIABLE)
 
-- No pupil emails, real names, DOB, or addresses collected
-- Display names chosen by teacher (could be initials)
-- All data scoped by RLS (teachers see only their class)
-- Cascade delete on pupil removal
+These are legal requirements, not suggestions. Violating them risks the school's trust and GDPR compliance.
+
+### Data Collection
+- **Allowed**: display_name (chosen by teacher, can be initials), 4-digit PIN, game progress scores
+- **NEVER collect**: real names, email addresses, dates of birth, photos, addresses, phone numbers, IP addresses, device identifiers
+- **Display names**: teachers choose these — could be "Pupil A" or initials. Never prompt for "full name"
+
+### Data Access
+- All data scoped by Row Level Security (teachers see ONLY their own class)
+- No data sharing between teachers or schools
 - No analytics/tracking beyond game progress
-- No data sharing between teachers/schools
-- No PII in URLs or console logs
-- Supabase in EU region (GDPR compliant)
+- No PII in URLs, console logs, or error messages
 
-See `references/privacy-rules.md` for complete rules.
+### Data Lifecycle
+- Cascade delete on pupil removal (progress, rewards — everything)
+- No data retention after deletion
+- Supabase in EU region (eu-west-2) for GDPR compliance
 
------
-
-## Accessibility — NON-NEGOTIABLE
-
-- Keyboard navigable (Tab, Enter, Escape, Arrow keys)
-- Screen reader compatible (ARIA labels, roles, live regions)
-- WCAG AA contrast ratios
-- Visible focus indicators
-- Form labels associated with inputs
-- Use Radix UI primitives (accessible by default)
-
-See `references/accessibility.md` for complete checklist.
+### Building Features
+- Never build a feature that requires personal data
+- Never log pupil data to console in production
+- Never expose pupil IDs in URLs visible to other teachers
+- Always use RLS — never bypass with service role key in client code
+- File imports (CSV) must be processed client-side only — never upload to server
 
 -----
 
-## References
+## ACCESSIBILITY REQUIREMENTS (NON-NEGOTIABLE)
 
-- `references/design-system.md` — Colours, typography, layout, components
-- `references/teacher-needs.md` — Daily/weekly/termly teacher workflows
-- `references/privacy-rules.md` — GDPR, data minimization, RLS
-- `references/accessibility.md` — WCAG AA, keyboard nav, screen readers
+These ensure every teacher can use the dashboard regardless of ability.
+
+### Keyboard Navigation
+- Every interactive element reachable via Tab
+- Enter/Space activates buttons and links
+- Escape closes modals, dialogs, dropdowns
+- Arrow keys navigate within menus and lists
+- Visible focus indicators on all focusable elements (never `outline: none`)
+
+### Screen Readers
+- All images have alt text
+- Form inputs have associated labels (htmlFor/id or aria-label)
+- Dynamic content uses aria-live regions
+- Icons have aria-hidden="true" when decorative, sr-only text when meaningful
+- Use Radix UI primitives — they handle ARIA roles automatically
+
+### Visual
+- WCAG AA contrast ratios (4.5:1 for text, 3:1 for large text)
+- Text resizable to 200% without breaking layout
+- No information conveyed by colour alone (use icons + colour)
+- Focus indicators visible in both light and dark themes
+
+### Forms
+- Error messages associated with inputs (aria-describedby)
+- Required fields marked with both visual and ARIA indicators
+- Submit buttons disabled during submission with loading state
+
+-----
+
+## SHIPPING GATE (MANDATORY)
+
+You are NOT done until EVERY item below passes. Do NOT tell the user the work is complete until you have verified each one.
+
+### Functional
+- [ ] Feature works end-to-end (create, read, update, delete where applicable)
+- [ ] Data loads from Supabase correctly
+- [ ] Offline fallback works via Dexie
+- [ ] No console errors in production build
+- [ ] RLS policies enforced (tested with different teacher accounts if possible)
+
+### Visual
+- [ ] Uses Classmates design language (teal/emerald accents, dark theme options)
+- [ ] Charts have labels, legends, and custom tooltips
+- [ ] Tables are sortable and filterable
+- [ ] Empty states guide users to first action
+- [ ] Loading uses skeleton placeholders, not spinners
+- [ ] Motion animations on page transitions and list items
+
+### Interaction
+- [ ] Every action gives feedback via Sonner toast
+- [ ] Destructive actions require AlertDialog confirmation
+- [ ] Forms validate before submission
+- [ ] Modals closeable with Escape key
+
+### Accessibility
+- [ ] Tab navigation works through all interactive elements
+- [ ] Screen reader tested (or Radix primitives used throughout)
+- [ ] WCAG AA contrast ratios met
+- [ ] Form labels associated with inputs
+- [ ] Focus indicators visible
+
+### Privacy
+- [ ] No PII collected beyond display_name and PIN
+- [ ] No pupil data logged to console
+- [ ] RLS enforced on all queries
+- [ ] Cascade delete works on pupil removal
+
+### Integration
+- [ ] Copyright header on every file
+- [ ] Build passes: `npm run build`
+- [ ] Component accessible from teacher dashboard navigation
+
+-----
+
+## References (optional lookup)
+
+These files have detailed docs you can look up as needed:
+- `references/design-system.md` — Colours, typography, layout, available components
+- `references/teacher-needs.md` — Daily/weekly/termly teacher workflows and pain points

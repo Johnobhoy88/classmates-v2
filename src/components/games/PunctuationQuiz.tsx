@@ -22,6 +22,6 @@ function buildQuestions(level: PunctLevel): QuizQuestion[] {
 
 export function PunctuationQuiz({ onExit }: { onExit: () => void }) {
   const [level, setLevel] = useState<PunctLevel | null>(null);
-  if (!level) return <LevelSelect title="Punctuation" color="#e44d26" icon=".?!" onSelect={(lv) => setLevel(lv as PunctLevel)} onBack={onExit} />;
-  return <QuizEngine config={{ gameId: 'punctuation', title: 'Punctuation Done!', subtitle: `Level ${level}`, color: '#e44d26', icon: '.?!', questions: buildQuestions(level), adaptiveTopic: 'punctuation', wrongDelay: 1500 }} onExit={onExit} />;
+  if (!level) return <LevelSelect title="Punctuation" color="#e44d26" icon=".?!" theme="forest" onSelect={(lv) => setLevel(lv as PunctLevel)} onBack={onExit} />;
+  return <QuizEngine config={{ gameId: 'punctuation', title: 'Punctuation Done!', subtitle: `Level ${level}`, color: '#e44d26', icon: '.?!', questions: buildQuestions(level), adaptiveTopic: 'punctuation', wrongDelay: 1500, theme: 'forest' }} onExit={onExit} />;
 }
