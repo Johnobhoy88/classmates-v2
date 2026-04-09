@@ -28,6 +28,7 @@ Built by John McMillan (HighlandAI). Free, privacy-first, no ads, no tracking.
 - **LittleJS** — ultra-tiny pixel art engine (MIT, ~10KB)
 - **Nostalgist.js** — browser RetroArch emulator for GB ROMs (MIT)
 - **GDExporter** — CLI for exporting GDevelop games to HTML5 (dev dependency)
+- **Godot 4.4** — 3D/2D game engine, exports to HTML5/WASM (MIT, free). Claude writes .tscn scenes and .gd scripts directly. Headless CLI verified. For showpiece 3D games (platformers, physics puzzles, adventures) that go beyond Three.js.
 
 ### UI/UX Libraries (all installed)
 - **Motion** (was framer-motion) — page transitions, animations, game menus (MIT)
