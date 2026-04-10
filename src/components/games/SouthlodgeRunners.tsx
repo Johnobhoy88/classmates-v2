@@ -111,7 +111,7 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
       physics: { default: 'arcade' },
-      scene: RunnerScene,
+      scene: [], // Don't auto-start — we add and start manually with data
       input: {
         touch: true,
         keyboard: true,
@@ -121,8 +121,8 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
     const game = new Phaser.Game(config);
     gameRef.current = game;
 
-    // Pass data to scene
-    game.scene.start('RunnerScene', {
+    // Add scene and start with data (avoids auto-start without data)
+    game.scene.add('RunnerScene', RunnerScene, true, {
       words,
       callbacks: {
         onCoinCollect: () => { if (!muted) sfxCoin(); },

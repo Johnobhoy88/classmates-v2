@@ -130,7 +130,8 @@ export class RunnerScene extends Phaser.Scene {
     super({ key: 'RunnerScene' });
   }
 
-  init(data: { words: WordChallenge[]; callbacks: RunnerCallbacks }) {
+  init(data: { words?: WordChallenge[]; callbacks?: RunnerCallbacks }) {
+    if (!data?.callbacks || !data?.words) return; // Safety: don't init without data
     this.callbacks = data.callbacks;
     this.words = data.words;
     this.lane = 1;
@@ -160,6 +161,7 @@ export class RunnerScene extends Phaser.Scene {
   }
 
   create() {
+    if (!this.callbacks) return; // Not initialized — skip
     const { width: W, height: H } = this.scale;
 
     // Background layer (drawn once, scrolled via offset)
