@@ -75,29 +75,25 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
   }, [muted, pupil, burst]);
 
   const startGame = useCallback(() => {
-    if (!containerRef.current) return;
-
     savedRef.current = false;
     setResult(null);
-    setStarted(true);
+    setStarted(true); // This triggers re-render with the game container div
+  }, []);
+
+  // Initialize Phaser once the container div is mounted
+  useEffect(() => {
+    if (!started || result || !containerRef.current || gameRef.current) return;
 
     if (!muted && !musicStarted.current) {
       startMusic(THEME_FOREST);
       musicStarted.current = true;
     }
 
-    // Build word challenges from existing content
-    const words = buildMissionWords('mixed', 20).map(w => ({
+    const words = buildMissionWords('First', 20).map(w => ({
       word: w.word,
       confusions: w.confusions,
       sentence: w.sentence,
     }));
-
-    // Destroy previous game if exists
-    if (gameRef.current) {
-      gameRef.current.destroy(true);
-      gameRef.current = null;
-    }
 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -111,11 +107,8 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
         autoCenter: Phaser.Scale.CENTER_BOTH,
       },
       physics: { default: 'arcade' },
-      scene: [], // Don't auto-start — we add and start manually with data
-      input: {
-        touch: true,
-        keyboard: true,
-      },
+      scene: [],
+      input: { touch: true, keyboard: true },
     };
 
     const sceneData = {
@@ -140,11 +133,10 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
     const game = new Phaser.Game(config);
     gameRef.current = game;
 
-    // Wait for Phaser to be ready, then add and start scene with data
     game.events.once('ready', () => {
       game.scene.add('RunnerScene', RunnerScene, true, sceneData);
     });
-  }, [muted, handleGameOver, burst]);
+  }, [started, result, muted, handleGameOver, burst]);
 
   // Cleanup
   useEffect(() => {
