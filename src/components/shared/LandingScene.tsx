@@ -21,6 +21,19 @@ interface HillLayer { points: { x: number; y: number }[]; color1: string; color2
 interface Daisy { x: number; y: number; size: number; color: string; phase: number; }
 interface Butterfly { x: number; y: number; vx: number; vy: number; wingPhase: number; size: number; color: string; }
 interface SunRay { angle: number; length: number; width: number; opacity: number; }
+interface Sparkle { x: number; y: number; speed: number; size: number; phase: number; opacity: number; }
+interface Sheep { x: number; hillIdx: number; speed: number; direction: number; size: number; }
+interface GrassBlade { x: number; y: number; height: number; phase: number; color: string; }
+
+const COW_MESSAGES = [
+  'Welcome tae school! 🏫',
+  'Let\'s learn! 📚',
+  'Ye can dae it! 💪',
+  'Guid morning! ☀️',
+  'Ready tae play? 🎮',
+  'Haste ye back! 🐄',
+  'Braw day for it! 🌈',
+];
 
 export function LandingScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -40,7 +53,11 @@ export function LandingScene() {
     let daisies: Daisy[] = [];
     let butterflies: Butterfly[] = [];
     let sunRays: SunRay[] = [];
-    void 0; // scene state initialized
+    let sparkles: Sparkle[] = [];
+    let sheep: Sheep[] = [];
+    let grassBlades: GrassBlade[] = [];
+    let cowMessageIdx = 0;
+    let cowMessageTimer = 0;
 
     function generateScene() {
       if (!W || !H) return;
@@ -89,6 +106,23 @@ export function LandingScene() {
       sunRays = [];
       for (let i = 0; i < 8; i++) {
         sunRays.push({ angle: (i / 8) * Math.PI * 2, length: rand(80, 160), width: rand(15, 40), opacity: rand(0.03, 0.08) });
+      }
+
+      sparkles = [];
+      for (let i = 0; i < 20; i++) {
+        sparkles.push({ x: rand(0, W), y: rand(H * 0.6, H * 0.85), speed: rand(0.3, 0.8), size: rand(1.5, 3.5), phase: rand(0, Math.PI * 2), opacity: rand(0.3, 0.8) });
+      }
+
+      sheep = [];
+      for (let i = 0; i < 3; i++) {
+        sheep.push({ x: rand(W * 0.15, W * 0.75), hillIdx: 1, speed: rand(0.05, 0.15), direction: Math.random() > 0.5 ? 1 : -1, size: rand(8, 13) });
+      }
+
+      grassBlades = [];
+      for (let i = 0; i < 60; i++) {
+        const gx = rand(0, W);
+        const gy = H * 0.72 + Math.sin(gx * 0.008 + 2) * H * 0.04 + Math.sin(gx * 0.015) * H * 0.02;
+        grassBlades.push({ x: gx, y: gy + rand(-2, 8), height: rand(8, 18), phase: rand(0, Math.PI * 2), color: ['#43A047', '#388E3C', '#2E7D32', '#4CAF50'][Math.floor(rand(0, 4))] });
       }
     }
 
@@ -286,6 +320,217 @@ export function LandingScene() {
       }
     }
 
+    function drawGrass(time: number) {
+      const t = time * 0.001;
+      for (const g of grassBlades) {
+        const sway = Math.sin(t * 1.5 + g.phase) * 3;
+        ctx!.strokeStyle = g.color;
+        ctx!.lineWidth = 1.5;
+        ctx!.beginPath();
+        ctx!.moveTo(g.x, g.y);
+        ctx!.quadraticCurveTo(g.x + sway * 0.5, g.y - g.height * 0.5, g.x + sway, g.y - g.height);
+        ctx!.stroke();
+      }
+    }
+
+    function drawSparkles(time: number) {
+      const t = time * 0.001;
+      for (const s of sparkles) {
+        const sy = s.y - (t * s.speed * 30) % (H * 0.3);
+        const sx = s.x + Math.sin(t * 2 + s.phase) * 5;
+        const pulse = 0.5 + Math.sin(t * 4 + s.phase) * 0.5;
+        ctx!.globalAlpha = s.opacity * pulse;
+        ctx!.fillStyle = '#FFD93D';
+        ctx!.beginPath();
+        ctx!.arc(sx, sy, s.size * pulse, 0, Math.PI * 2);
+        ctx!.fill();
+        // Cross sparkle shape
+        ctx!.fillRect(sx - s.size * 0.3, sy - s.size * 1.5 * pulse, s.size * 0.6, s.size * 3 * pulse);
+        ctx!.fillRect(sx - s.size * 1.5 * pulse, sy - s.size * 0.3, s.size * 3 * pulse, s.size * 0.6);
+        ctx!.globalAlpha = 1;
+      }
+    }
+
+    function drawSheep(time: number) {
+      const t = time * 0.001;
+      for (let i = 0; i < sheep.length; i++) {
+        const s = sheep[i];
+        // Move slowly
+        s.x += s.speed * s.direction;
+        if (s.x < W * 0.05 || s.x > W * 0.95) s.direction *= -1;
+        // Find hill Y
+        const layer = hillLayers[s.hillIdx];
+        if (!layer || !layer.points.length) continue;
+        let closest = layer.points[0];
+        for (const p of layer.points) {
+          if (Math.abs(p.x - s.x) < Math.abs(closest.x - s.x)) closest = p;
+        }
+        const sy = closest.y - s.size * 0.8;
+        const bob = Math.sin(t * 2 + i * 3) * 1;
+        // Body (fluffy white)
+        ctx!.fillStyle = '#FAFAFA';
+        ctx!.beginPath(); ctx!.ellipse(s.x, sy + bob, s.size * 1.2, s.size * 0.8, 0, 0, Math.PI * 2); ctx!.fill();
+        // Fluff
+        ctx!.beginPath(); ctx!.arc(s.x - s.size * 0.5, sy - s.size * 0.3 + bob, s.size * 0.5, 0, Math.PI * 2); ctx!.fill();
+        ctx!.beginPath(); ctx!.arc(s.x + s.size * 0.5, sy - s.size * 0.3 + bob, s.size * 0.5, 0, Math.PI * 2); ctx!.fill();
+        // Head
+        ctx!.fillStyle = '#333';
+        const hx = s.x + s.direction * s.size * 0.9;
+        ctx!.beginPath(); ctx!.ellipse(hx, sy - s.size * 0.1 + bob, s.size * 0.35, s.size * 0.3, 0, 0, Math.PI * 2); ctx!.fill();
+        // Legs
+        ctx!.fillStyle = '#333';
+        ctx!.fillRect(s.x - s.size * 0.5, sy + s.size * 0.5 + bob, 3, s.size * 0.5);
+        ctx!.fillRect(s.x + s.size * 0.3, sy + s.size * 0.5 + bob, 3, s.size * 0.5);
+      }
+    }
+
+    function drawHighlandCow(time: number) {
+      const t = time * 0.001;
+      // Position on the foreground hill, left side
+      const cx = W * 0.15;
+      const nearLayer = hillLayers[2];
+      if (!nearLayer || !nearLayer.points.length) return;
+      let closest = nearLayer.points[0];
+      for (const p of nearLayer.points) {
+        if (Math.abs(p.x - cx) < Math.abs(closest.x - cx)) closest = p;
+      }
+      const cy = closest.y - 18;
+      const bob = Math.sin(t * 0.8) * 2;
+      const scale = 1.0;
+
+      ctx!.save();
+      ctx!.translate(cx, cy + bob);
+      ctx!.scale(scale, scale);
+
+      // Body (shaggy brown oval)
+      ctx!.fillStyle = '#8B4513';
+      ctx!.beginPath(); ctx!.ellipse(0, 0, 28, 18, 0, 0, Math.PI * 2); ctx!.fill();
+
+      // Shaggy fur texture (darker streaks)
+      ctx!.strokeStyle = '#6B3410';
+      ctx!.lineWidth = 1.5;
+      for (let i = 0; i < 8; i++) {
+        const fx = -20 + i * 5 + Math.sin(t + i) * 1;
+        const fy = -8 + (i % 3) * 6;
+        ctx!.beginPath();
+        ctx!.moveTo(fx, fy);
+        ctx!.quadraticCurveTo(fx + 3, fy - 4, fx + 6, fy - 1);
+        ctx!.stroke();
+      }
+
+      // Legs
+      ctx!.fillStyle = '#6B3410';
+      ctx!.fillRect(-15, 14, 5, 12);
+      ctx!.fillRect(-5, 14, 5, 12);
+      ctx!.fillRect(8, 14, 5, 12);
+      ctx!.fillRect(18, 14, 5, 12);
+      // Hooves
+      ctx!.fillStyle = '#333';
+      ctx!.fillRect(-16, 24, 7, 3);
+      ctx!.fillRect(-6, 24, 7, 3);
+      ctx!.fillRect(7, 24, 7, 3);
+      ctx!.fillRect(17, 24, 7, 3);
+
+      // Head
+      ctx!.fillStyle = '#A0522D';
+      ctx!.beginPath(); ctx!.ellipse(30, -6, 14, 12, 0.1, 0, Math.PI * 2); ctx!.fill();
+
+      // Shaggy fringe over eyes
+      ctx!.fillStyle = '#8B4513';
+      ctx!.beginPath(); ctx!.ellipse(32, -14, 16, 8, 0, 0, Math.PI * 2); ctx!.fill();
+      // Fringe strands
+      ctx!.strokeStyle = '#6B3410';
+      ctx!.lineWidth = 2;
+      for (let i = 0; i < 5; i++) {
+        const sx = 24 + i * 4;
+        ctx!.beginPath();
+        ctx!.moveTo(sx, -16);
+        ctx!.quadraticCurveTo(sx + Math.sin(t * 2 + i) * 2, -8, sx - 1, -4);
+        ctx!.stroke();
+      }
+
+      // Horns
+      ctx!.strokeStyle = '#DEB887';
+      ctx!.lineWidth = 3;
+      ctx!.lineCap = 'round';
+      // Left horn
+      ctx!.beginPath(); ctx!.moveTo(22, -16); ctx!.quadraticCurveTo(16, -28, 20, -32); ctx!.stroke();
+      // Right horn
+      ctx!.beginPath(); ctx!.moveTo(40, -16); ctx!.quadraticCurveTo(46, -28, 42, -32); ctx!.stroke();
+
+      // Nose/muzzle
+      ctx!.fillStyle = '#DEB887';
+      ctx!.beginPath(); ctx!.ellipse(38, 2, 8, 6, 0, 0, Math.PI * 2); ctx!.fill();
+      // Nostrils
+      ctx!.fillStyle = '#333';
+      ctx!.beginPath(); ctx!.arc(36, 2, 1.5, 0, Math.PI * 2); ctx!.fill();
+      ctx!.beginPath(); ctx!.arc(40, 2, 1.5, 0, Math.PI * 2); ctx!.fill();
+
+      // Eyes (peeking from under fringe)
+      ctx!.fillStyle = '#111';
+      ctx!.beginPath(); ctx!.arc(28, -6, 2, 0, Math.PI * 2); ctx!.fill();
+      ctx!.beginPath(); ctx!.arc(36, -6, 2, 0, Math.PI * 2); ctx!.fill();
+      // Eye shine
+      ctx!.fillStyle = '#fff';
+      ctx!.beginPath(); ctx!.arc(28.5, -6.5, 0.8, 0, Math.PI * 2); ctx!.fill();
+      ctx!.beginPath(); ctx!.arc(36.5, -6.5, 0.8, 0, Math.PI * 2); ctx!.fill();
+
+      // Tail
+      const tailSway = Math.sin(t * 3) * 8;
+      ctx!.strokeStyle = '#8B4513';
+      ctx!.lineWidth = 2.5;
+      ctx!.beginPath();
+      ctx!.moveTo(-26, -2);
+      ctx!.quadraticCurveTo(-34, -8 + tailSway, -38, -4 + tailSway);
+      ctx!.stroke();
+      // Tail tuft
+      ctx!.fillStyle = '#6B3410';
+      ctx!.beginPath(); ctx!.arc(-38, -4 + tailSway, 3, 0, Math.PI * 2); ctx!.fill();
+
+      ctx!.restore();
+
+      // Speech bubble
+      cowMessageTimer += 0.016;
+      if (cowMessageTimer > 4) {
+        cowMessageTimer = 0;
+        cowMessageIdx = (cowMessageIdx + 1) % COW_MESSAGES.length;
+      }
+      const bubbleAlpha = Math.min(1, cowMessageTimer * 2) * (cowMessageTimer > 3.5 ? (4 - cowMessageTimer) * 2 : 1);
+      if (bubbleAlpha > 0.05) {
+        ctx!.globalAlpha = bubbleAlpha;
+        const bx = cx + 50;
+        const by = cy - 40 + bob;
+        const msg = COW_MESSAGES[cowMessageIdx];
+        ctx!.font = 'bold 11px Nunito, sans-serif';
+        const tw = ctx!.measureText(msg).width;
+        const pw = tw + 16;
+        const ph = 22;
+        // Bubble
+        ctx!.fillStyle = '#fff';
+        ctx!.beginPath();
+        ctx!.roundRect(bx - pw / 2, by - ph / 2, pw, ph, 8);
+        ctx!.fill();
+        ctx!.strokeStyle = '#ccc';
+        ctx!.lineWidth = 1;
+        ctx!.stroke();
+        // Pointer
+        ctx!.fillStyle = '#fff';
+        ctx!.beginPath();
+        ctx!.moveTo(bx - 8, by + ph / 2 - 1);
+        ctx!.lineTo(bx - 14, by + ph / 2 + 8);
+        ctx!.lineTo(bx, by + ph / 2 - 1);
+        ctx!.fill();
+        // Text
+        ctx!.fillStyle = '#333';
+        ctx!.textAlign = 'center';
+        ctx!.textBaseline = 'middle';
+        ctx!.fillText(msg, bx, by);
+        ctx!.textAlign = 'start';
+        ctx!.textBaseline = 'alphabetic';
+        ctx!.globalAlpha = 1;
+      }
+    }
+
     function loop(t: number) {
       if (!running.current) return;
 
@@ -300,9 +545,13 @@ export function LandingScene() {
       drawClouds(t);
       drawBirds(t);
       drawHills(t);
+      drawSheep(t);
       drawTrees(t);
+      drawGrass(t);
       drawDaisies(t);
+      drawSparkles(t);
       drawButterflies(t);
+      drawHighlandCow(t);
 
       animId.current = requestAnimationFrame(loop);
     }
