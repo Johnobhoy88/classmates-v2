@@ -83,7 +83,7 @@ export class QuizWorldScene extends Phaser.Scene {
       this.drawBackground(nW, nH);
       this.sceneryContainer.removeAll(true);
       this.drawScenery(nW, nH);
-      this.mascot.setPosition(nW * 0.85, nH * 0.72);
+      this.mascot.setPosition(nW * 0.85, nH * 0.42);
     });
   }
 
@@ -384,7 +384,7 @@ export class QuizWorldScene extends Phaser.Scene {
   // ==================== MASCOT ====================
 
   private createMascot(W: number, H: number): Phaser.GameObjects.Container {
-    const container = this.add.container(W * 0.85, H * 0.72);
+    const container = this.add.container(W * 0.85, H * 0.42);
 
     if (this.theme === 'forest') {
       this.buildOwl(container);
@@ -690,8 +690,7 @@ export class QuizWorldScene extends Phaser.Scene {
   private onWordComplete() {
     const { width: W, height: H } = this.scale;
 
-    // Bigger celebration
-    this.cameras.main.flash(250, 80, 220, 100);
+    // Celebration without camera flash (flash is reserved for game completion only)
     this.burstEmitters.forEach(e => {
       e.setPosition(W / 2, H * 0.35);
       e.explode(8);
@@ -710,9 +709,8 @@ export class QuizWorldScene extends Phaser.Scene {
   }
 
   private onWordFailed() {
+    // Gentle shake only — no camera flash (too distracting for kids)
     this.cameras.main.shake(300, 0.008);
-    // Red flash
-    this.cameras.main.flash(200, 180, 30, 30);
 
     this.tweens.add({
       targets: this.mascot,

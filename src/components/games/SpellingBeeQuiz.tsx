@@ -135,7 +135,7 @@ export function SpellingBeeQuiz({ onExit }: { onExit: () => void }) {
           )}
         </AnimatePresence>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-4 max-w-md mx-auto w-full gap-4">
+        <div className="flex-1 flex flex-col items-center justify-end pb-8 px-4 max-w-md mx-auto w-full gap-4">
           <motion.p key={idx} initial={{ opacity: 0, y: -15 }} animate={{ opacity: 1, y: 0 }} className="text-white/50 text-sm">
             Spell the word from the hint
           </motion.p>

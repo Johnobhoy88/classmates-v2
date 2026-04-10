@@ -159,7 +159,7 @@ export function TypingQuiz({ onExit }: { onExit: () => void }) {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-4 max-w-md mx-auto w-full gap-6">
+        <div className="flex-1 flex flex-col items-center justify-end pb-8 px-4 max-w-md mx-auto w-full gap-6">
           <motion.p
             key={idx}
             initial={{ opacity: 0, y: -20, scale: 0.9 }}

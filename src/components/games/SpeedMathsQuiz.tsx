@@ -194,7 +194,7 @@ export function SpeedMathsQuiz({ onExit }: { onExit: () => void }) {
           )}
         </AnimatePresence>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-4">
+        <div className="flex-1 flex flex-col items-center justify-end pb-8 px-4">
           <motion.p
             key={question?.text}
             initial={{ opacity: 0, scale: 0.8 }}
