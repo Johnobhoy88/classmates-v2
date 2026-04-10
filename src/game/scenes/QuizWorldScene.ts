@@ -83,7 +83,14 @@ export class QuizWorldScene extends Phaser.Scene {
       this.drawBackground(nW, nH);
       this.sceneryContainer.removeAll(true);
       this.drawScenery(nW, nH);
-      this.mascot.setPosition(nW * 0.85, nH * 0.42);
+      // Keep mascot grounded in its environment on resize
+      if (this.theme === 'forest') {
+        this.mascot.setPosition(nW * 0.88, nH * 0.58);
+      } else if (this.theme === 'cosmos') {
+        this.mascot.setPosition(nW * 0.85, nH * 0.68);
+      } else {
+        this.mascot.setPosition(nW * 0.85, nH * 0.6);
+      }
     });
   }
 
@@ -384,7 +391,18 @@ export class QuizWorldScene extends Phaser.Scene {
   // ==================== MASCOT ====================
 
   private createMascot(W: number, H: number): Phaser.GameObjects.Container {
-    const container = this.add.container(W * 0.85, H * 0.42);
+    // Position each mascot where it makes sense in its environment:
+    // Owl on a tree branch (forest), Robot near ground (cosmos), Fox on a hill (earth)
+    let mx: number, my: number;
+    if (this.theme === 'forest') {
+      mx = W * 0.88; my = H * 0.58; // Perched at tree line level
+    } else if (this.theme === 'cosmos') {
+      mx = W * 0.85; my = H * 0.68; // Hovering near ground level
+    } else {
+      mx = W * 0.85; my = H * 0.6;  // Sitting on a hill
+    }
+
+    const container = this.add.container(mx, my);
 
     if (this.theme === 'forest') {
       this.buildOwl(container);

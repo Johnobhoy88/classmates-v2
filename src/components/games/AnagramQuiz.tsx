@@ -211,7 +211,7 @@ export function AnagramQuiz({ onExit }: { onExit: () => void }) {
         </AnimatePresence>
 
         {/* Main game area */}
-        <div className="flex-1 flex flex-col items-center justify-end pb-8 px-4 max-w-md mx-auto w-full gap-5">
+        <div className="flex-1 flex flex-col items-center justify-center px-4 max-w-md mx-auto w-full gap-5">
           <motion.p
             key={idx}
             initial={{ opacity: 0, y: -10 }}
