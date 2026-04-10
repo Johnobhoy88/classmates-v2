@@ -118,11 +118,7 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
       },
     };
 
-    const game = new Phaser.Game(config);
-    gameRef.current = game;
-
-    // Add scene and start with data (avoids auto-start without data)
-    game.scene.add('RunnerScene', RunnerScene, true, {
+    const sceneData = {
       words,
       callbacks: {
         onCoinCollect: () => { if (!muted) sfxCoin(); },
@@ -139,6 +135,14 @@ export function SouthlodgeRunners({ onExit }: { onExit: () => void }) {
         },
         onGameOver: handleGameOver,
       },
+    };
+
+    const game = new Phaser.Game(config);
+    gameRef.current = game;
+
+    // Wait for Phaser to be ready, then add and start scene with data
+    game.events.once('ready', () => {
+      game.scene.add('RunnerScene', RunnerScene, true, sceneData);
     });
   }, [muted, handleGameOver, burst]);
 
