@@ -9,7 +9,7 @@ import { useState, useEffect, lazy, Suspense, type ComponentType } from 'react';
 import { useAuth } from '../auth/AuthProvider';
 import { useProgress } from '../../hooks/useProgress';
 import { motion } from 'motion/react';
-import { Star, Gamepad2, Coins, BookOpen, Volume2, Type, PenTool, Music, CircleDot, TextCursorInput, Shuffle, ListOrdered, BookOpenText, Calculator, Link, Grid3X3, PieChart, PoundSterling, Clock, Layers, HelpCircle, Triangle, Ruler, FileQuestion, Zap, BarChart3, TrendingUp, Landmark, Globe, CloudSun, Compass, Flag, MapPin, Brain, Bug, Keyboard, CalendarDays, Swords, Car } from 'lucide-react';
+import { Star, Gamepad2, Coins, BookOpen, Volume2, Type, PenTool, Music, CircleDot, TextCursorInput, Shuffle, ListOrdered, BookOpenText, Calculator, Link, Grid3X3, PieChart, PoundSterling, Clock, Layers, HelpCircle, Triangle, Ruler, FileQuestion, Zap, BarChart3, TrendingUp, Landmark, Globe, CloudSun, Compass, Flag, MapPin, Brain, Bug, Keyboard, CalendarDays, Swords, Footprints } from 'lucide-react';
 import { GameLoading } from '../shared/GameNav';
 
 // Lazy-load ALL game components for code splitting
@@ -46,7 +46,7 @@ const SpellingBeeQuiz = lazy(() => import('../games/SpellingBeeQuiz').then(m => 
 const TypingQuiz = lazy(() => import('../games/TypingQuiz').then(m => ({ default: m.TypingQuiz })));
 const DailyChallenge = lazy(() => import('../games/DailyChallenge').then(m => ({ default: m.DailyChallenge })));
 const HeadToHead = lazy(() => import('../games/HeadToHead').then(m => ({ default: m.HeadToHead })));
-const SouthlodgeRacers = lazy(() => import('../games/SouthlodgeRacers').then(m => ({ default: m.SouthlodgeRacers })));
+const SouthlodgeRunners = lazy(() => import('../games/SouthlodgeRunners'));
 const MathsWorld = lazy(() => import('../games/MathsWorld'));
 
 // Lazy wrappers for geo quiz variants
@@ -88,7 +88,7 @@ const QUIZ_GAMES: Record<string, ComponentType<{ onExit: () => void }>> = {
   dictation: DictationQuiz, vowels: VowelsQuiz,
   anagram: AnagramQuiz, sentence: SentencesQuiz,
   memorymatch: MemoryMatchQuiz, spellingbee: SpellingBeeQuiz,
-  typing: TypingQuiz, daily: DailyChallenge, h2h: HeadToHead, hdash: SouthlodgeRacers,
+  typing: TypingQuiz, daily: DailyChallenge, h2h: HeadToHead, hdash: SouthlodgeRunners,
   mathsworld: MathsWorld,
 };
 
@@ -106,7 +106,7 @@ const GAME_ICONS: Record<string, typeof Star> = {
   capitals: Landmark, continents: Globe, weather: CloudSun, compass: Compass,
   flags: Flag, scotquiz: MapPin,
   memorymatch: Brain, spellingbee: Bug, typing: Keyboard, daily: CalendarDays,
-  h2h: Swords, hdash: Car, mathsworld: Gamepad2,
+  h2h: Swords, hdash: Footprints, mathsworld: Gamepad2,
 };
 
 const GAME_CATEGORIES = [
@@ -165,7 +165,7 @@ const GAME_CATEGORIES = [
       { id: 'typing', title: 'Typing Speed', desc: 'Type fast!' },
       { id: 'daily', title: 'Daily Challenge', desc: 'New every day' },
       { id: 'h2h', title: 'Head to Head', desc: '2-player maths race!' },
-      { id: 'hdash', title: 'Southlodge Racers', desc: '3D racing!' },
+      { id: 'hdash', title: 'Southlodge Runners', desc: 'Endless runner!' },
       { id: 'mathsworld', title: 'Maths World', desc: '3D maths adventure!' },
     ],
   },
